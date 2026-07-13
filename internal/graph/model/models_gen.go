@@ -2,25 +2,43 @@
 
 package model
 
-type Mutation struct {
+type AuthPayLoad struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
 }
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Habit struct {
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	Description   *string     `json:"description,omitempty"`
+	CurrentStreak int32       `json:"currentStreak"`
+	LongerStreak  int32       `json:"longerStreak"`
+	HabitLogs     []*HabitLog `json:"habitLogs"`
+	IsCompleted   bool        `json:"isCompleted"`
+	User          *User       `json:"user"`
+	CreatedAt     string      `json:"createdAt"`
+	UpdatedAt     string      `json:"updatedAt"`
+}
+
+type HabitLog struct {
+	ID            string `json:"id"`
+	CompletedDate string `json:"completedDate"`
+	Habit         *Habit `json:"habit"`
+	CreatedAt     string `json:"createdAt"`
+	UpdatedAt     string `json:"updatedAt"`
+}
+
+type Mutation struct {
 }
 
 type Query struct {
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID        string   `json:"id"`
+	Name      string   `json:"name"`
+	Email     string   `json:"email"`
+	Habits    []*Habit `json:"habits"`
+	CreatedAt string   `json:"createdAt"`
+	UpdatedAt string   `json:"updatedAt"`
 }

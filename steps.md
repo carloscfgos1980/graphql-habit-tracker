@@ -8,4 +8,10 @@ go get github.com/joho/godotenv
 
 go get github.com/99designs/gqlgen
 go run github.com/99designs/gqlgen init
-Move graph into internal directory
+go run github.com/99designs/gqlgen generate
+
+- Move graph into internal directory
+
+go install github.com/air-verse/air@latest
+export PATH="$PATH:$(go env GOPATH)/bin"
+# Needed because `go install` puts `air` in GOPATH/bin, which is not always on zsh's PATH.

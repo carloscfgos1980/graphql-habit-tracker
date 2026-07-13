@@ -1,28 +1,55 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Todo {
-  id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
-}
-
 type User {
   id: ID!
   name: String!
+  email: String!
+  habits: [Habit!]!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Habit {
+  id: ID!
+  name: String!
+  description: String
+  currentStreak: Int!
+  longerStreak: Int!
+  habitLogs: [HabitLog!]!
+  isCompleted: Boolean!
+  user: User!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type HabitLog {
+  id: ID!
+  completedDate: String!
+  habit: Habit!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type AuthPayLoad {
+  token: String!
+  user: User!
 }
 
 type Query {
-  todos: [Todo!]!
-}
-
-input NewTodo {
-  text: String!
-  userId: String!
+  me: User!
+  habits: [Habit!]!
+  habit(id: ID!): Habit
+  habitLogs(habitId: ID!): [HabitLog!]! 
 }
 
 type Mutation {
-  createTodo(input: NewTodo!): Todo!
+  register(name: String!, email: String!, password: String!): AuthPayLoad!
+  login(email: String!, password: String!): AuthPayLoad!
+  updateUser(name: String, email: String, password: String): User!
+  deleteUser: Boolean!
+
+  createHabit(name: String!, description: String): Habit!
+  updateHabit(id: ID!, name: String, description: String): Habit!
+  deleteHabit(id: ID!): Boolean!
+
+  checkInHabit(habitId: ID!, date: String): HabitLog!
+  deleteHabitLog(id: ID!): Boolean!
 }
