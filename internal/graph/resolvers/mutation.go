@@ -124,21 +124,21 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *
 	return updatedUser, nil
 }
 
-// func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
-// 	userID, ok := middleware.GetUserID(ctx)
+func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
+	userID, ok := middleware.GetUserID(ctx)
 
-// 	if !ok {
-// 		return false, fmt.Errorf("unauthorized")
-// 	}
+	if !ok {
+		return false, fmt.Errorf("unauthorized")
+	}
 
-// 	deleted, err := r.UserRepo.DeleteUser(userID)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	deleted, err := r.UserRepo.DeleteUser(userID)
+	if err != nil {
+		return false, err
+	}
 
-// 	if !deleted {
-// 		return false, fmt.Errorf("user not found")
-// 	}
+	if !deleted {
+		return false, fmt.Errorf("user not found")
+	}
 
-// 	return true, nil
-// }
+	return true, nil
+}

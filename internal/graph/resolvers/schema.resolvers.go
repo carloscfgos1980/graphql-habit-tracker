@@ -75,10 +75,10 @@ func (r *habitLogResolver) UpdatedAt(ctx context.Context, obj *models.HabitLog) 
 // 	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
 // }
 
-// DeleteUser is the resolver for the deleteUser field.
-func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
-}
+// // DeleteUser is the resolver for the deleteUser field.
+// func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
+// 	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+// }
 
 // CreateHabit is the resolver for the createHabit field.
 func (r *mutationResolver) CreateHabit(ctx context.Context, name string, description *string) (*models.Habit, error) {
