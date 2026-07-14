@@ -29,6 +29,8 @@ func NewExecutableSchema(cfg Config) graphql.ExecutableSchema {
 type Config = graphql.Config[ResolverRoot, DirectiveRoot, ComplexityRoot]
 
 type ResolverRoot interface {
+	Habit() HabitResolver
+	HabitLog() HabitLogResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	User() UserResolver
@@ -97,27 +99,44 @@ type ComplexityRoot struct {
 
 // region    ************************** generated!.gotpl **************************
 
+type HabitResolver interface {
+	CurrentStreak(ctx context.Context, obj *models.Habit) (int32, error)
+	LongerStreak(ctx context.Context, obj *models.Habit) (int32, error)
+	HabitLogs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error)
+	IsCompleted(ctx context.Context, obj *models.Habit) (bool, error)
+	User(ctx context.Context, obj *models.Habit) (*models.User, error)
+	CreatedAt(ctx context.Context, obj *models.Habit) (string, error)
+	UpdatedAt(ctx context.Context, obj *models.Habit) (string, error)
+}
+type HabitLogResolver interface {
+	CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error)
+	Habit(ctx context.Context, obj *models.HabitLog) (*models.Habit, error)
+	CreatedAt(ctx context.Context, obj *models.HabitLog) (string, error)
+	UpdatedAt(ctx context.Context, obj *models.HabitLog) (string, error)
+}
 type MutationResolver interface {
 	Register(ctx context.Context, name string, email string, password string) (*model.AuthPayLoad, error)
 	Login(ctx context.Context, email string, password string) (*model.AuthPayLoad, error)
 	UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error)
 	DeleteUser(ctx context.Context) (bool, error)
-	CreateHabit(ctx context.Context, name string, description *string) (*model.Habit, error)
-	UpdateHabit(ctx context.Context, id string, name *string, description *string) (*model.Habit, error)
+	CreateHabit(ctx context.Context, name string, description *string) (*models.Habit, error)
+	UpdateHabit(ctx context.Context, id string, name *string, description *string) (*models.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (bool, error)
-	CheckInHabit(ctx context.Context, habitID string, date *string) (*model.HabitLog, error)
+	CheckInHabit(ctx context.Context, habitID string, date *string) (*models.HabitLog, error)
 	DeleteHabitLog(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*models.User, error)
-	Habits(ctx context.Context) ([]*model.Habit, error)
-	Habit(ctx context.Context, id string) (*model.Habit, error)
-	HabitLogs(ctx context.Context, habitID string) ([]*model.HabitLog, error)
+	Habits(ctx context.Context) ([]*models.Habit, error)
+	Habit(ctx context.Context, id string) (*models.Habit, error)
+	HabitLogs(ctx context.Context, habitID string) ([]*models.HabitLog, error)
 }
 type UserResolver interface {
 	Name(ctx context.Context, obj *models.User) (string, error)
 
-	Habits(ctx context.Context, obj *models.User) ([]*model.Habit, error)
+	Habits(ctx context.Context, obj *models.User) ([]*models.Habit, error)
+	CreatedAt(ctx context.Context, obj *models.User) (string, error)
+	UpdatedAt(ctx context.Context, obj *models.User) (string, error)
 }
 
 // endregion ************************** generated!.gotpl **************************
@@ -1083,7 +1102,7 @@ func (ec *executionContext) fieldContext_AuthPayLoad_user(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Habit_id(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_id(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1106,7 +1125,7 @@ func (ec *executionContext) fieldContext_Habit_id(_ context.Context, field graph
 	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_name(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_name(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1129,7 +1148,7 @@ func (ec *executionContext) fieldContext_Habit_name(_ context.Context, field gra
 	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_description(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_description(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1141,8 +1160,8 @@ func (ec *executionContext) _Habit_description(ctx context.Context, field graphq
 			return obj.Description, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *string) graphql.Marshaler {
-			return ec.marshalOString2ᚖstring(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalOString2string(ctx, selections, v)
 		},
 		true,
 		false,
@@ -1152,7 +1171,7 @@ func (ec *executionContext) fieldContext_Habit_description(_ context.Context, fi
 	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_currentStreak(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_currentStreak(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1161,7 +1180,7 @@ func (ec *executionContext) _Habit_currentStreak(ctx context.Context, field grap
 			return ec.fieldContext_Habit_currentStreak(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.CurrentStreak, nil
+			return ec.Resolvers.Habit().CurrentStreak(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int32) graphql.Marshaler {
@@ -1172,10 +1191,10 @@ func (ec *executionContext) _Habit_currentStreak(ctx context.Context, field grap
 	)
 }
 func (ec *executionContext) fieldContext_Habit_currentStreak(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type Int does not have child fields"))
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1184,7 +1203,7 @@ func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graph
 			return ec.fieldContext_Habit_longerStreak(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.LongerStreak, nil
+			return ec.Resolvers.Habit().LongerStreak(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int32) graphql.Marshaler {
@@ -1195,10 +1214,10 @@ func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graph
 	)
 }
 func (ec *executionContext) fieldContext_Habit_longerStreak(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type Int does not have child fields"))
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_habitLogs(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_habitLogs(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1207,11 +1226,11 @@ func (ec *executionContext) _Habit_habitLogs(ctx context.Context, field graphql.
 			return ec.fieldContext_Habit_habitLogs(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.HabitLogs, nil
+			return ec.Resolvers.Habit().HabitLogs(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.HabitLog) graphql.Marshaler {
-			return ec.marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLogᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*models.HabitLog) graphql.Marshaler {
+			return ec.marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLogᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1221,8 +1240,8 @@ func (ec *executionContext) fieldContext_Habit_habitLogs(_ context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Habit",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_HabitLog(ctx, field)
 		},
@@ -1230,7 +1249,7 @@ func (ec *executionContext) fieldContext_Habit_habitLogs(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Habit_isCompleted(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_isCompleted(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1239,7 +1258,7 @@ func (ec *executionContext) _Habit_isCompleted(ctx context.Context, field graphq
 			return ec.fieldContext_Habit_isCompleted(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.IsCompleted, nil
+			return ec.Resolvers.Habit().IsCompleted(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
@@ -1250,10 +1269,10 @@ func (ec *executionContext) _Habit_isCompleted(ctx context.Context, field graphq
 	)
 }
 func (ec *executionContext) fieldContext_Habit_isCompleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type Boolean does not have child fields"))
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_user(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_user(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1262,7 +1281,7 @@ func (ec *executionContext) _Habit_user(ctx context.Context, field graphql.Colle
 			return ec.fieldContext_Habit_user(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.User, nil
+			return ec.Resolvers.Habit().User(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *models.User) graphql.Marshaler {
@@ -1276,8 +1295,8 @@ func (ec *executionContext) fieldContext_Habit_user(_ context.Context, field gra
 	fc = &graphql.FieldContext{
 		Object:     "Habit",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_User(ctx, field)
 		},
@@ -1285,7 +1304,7 @@ func (ec *executionContext) fieldContext_Habit_user(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Habit_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1294,7 +1313,7 @@ func (ec *executionContext) _Habit_createdAt(ctx context.Context, field graphql.
 			return ec.fieldContext_Habit_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.CreatedAt, nil
+			return ec.Resolvers.Habit().CreatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -1305,10 +1324,10 @@ func (ec *executionContext) _Habit_createdAt(ctx context.Context, field graphql.
 	)
 }
 func (ec *executionContext) fieldContext_Habit_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1317,7 +1336,7 @@ func (ec *executionContext) _Habit_updatedAt(ctx context.Context, field graphql.
 			return ec.fieldContext_Habit_updatedAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.UpdatedAt, nil
+			return ec.Resolvers.Habit().UpdatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -1328,10 +1347,10 @@ func (ec *executionContext) _Habit_updatedAt(ctx context.Context, field graphql.
 	)
 }
 func (ec *executionContext) fieldContext_Habit_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_id(ctx context.Context, field graphql.CollectedField, obj *model.HabitLog) (ret graphql.Marshaler) {
+func (ec *executionContext) _HabitLog_id(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1354,7 +1373,7 @@ func (ec *executionContext) fieldContext_HabitLog_id(_ context.Context, field gr
 	return graphql.NewScalarFieldContext("HabitLog", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field graphql.CollectedField, obj *model.HabitLog) (ret graphql.Marshaler) {
+func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1363,7 +1382,7 @@ func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field g
 			return ec.fieldContext_HabitLog_completedDate(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.CompletedDate, nil
+			return ec.Resolvers.HabitLog().CompletedDate(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -1374,10 +1393,10 @@ func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field g
 	)
 }
 func (ec *executionContext) fieldContext_HabitLog_completedDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("HabitLog", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_habit(ctx context.Context, field graphql.CollectedField, obj *model.HabitLog) (ret graphql.Marshaler) {
+func (ec *executionContext) _HabitLog_habit(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1386,11 +1405,11 @@ func (ec *executionContext) _HabitLog_habit(ctx context.Context, field graphql.C
 			return ec.fieldContext_HabitLog_habit(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.Habit, nil
+			return ec.Resolvers.HabitLog().Habit(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.Habit) graphql.Marshaler {
-			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.Habit) graphql.Marshaler {
+			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1400,8 +1419,8 @@ func (ec *executionContext) fieldContext_HabitLog_habit(_ context.Context, field
 	fc = &graphql.FieldContext{
 		Object:     "HabitLog",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return ec.childFields_Habit(ctx, field)
 		},
@@ -1409,7 +1428,7 @@ func (ec *executionContext) fieldContext_HabitLog_habit(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _HabitLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.HabitLog) (ret graphql.Marshaler) {
+func (ec *executionContext) _HabitLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1418,7 +1437,7 @@ func (ec *executionContext) _HabitLog_createdAt(ctx context.Context, field graph
 			return ec.fieldContext_HabitLog_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.CreatedAt, nil
+			return ec.Resolvers.HabitLog().CreatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -1429,10 +1448,10 @@ func (ec *executionContext) _HabitLog_createdAt(ctx context.Context, field graph
 	)
 }
 func (ec *executionContext) fieldContext_HabitLog_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("HabitLog", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.HabitLog) (ret graphql.Marshaler) {
+func (ec *executionContext) _HabitLog_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
@@ -1441,7 +1460,7 @@ func (ec *executionContext) _HabitLog_updatedAt(ctx context.Context, field graph
 			return ec.fieldContext_HabitLog_updatedAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.UpdatedAt, nil
+			return ec.Resolvers.HabitLog().UpdatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -1452,7 +1471,7 @@ func (ec *executionContext) _HabitLog_updatedAt(ctx context.Context, field graph
 	)
 }
 func (ec *executionContext) fieldContext_HabitLog_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("HabitLog", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1623,8 +1642,8 @@ func (ec *executionContext) _Mutation_createHabit(ctx context.Context, field gra
 			return ec.Resolvers.Mutation().CreateHabit(ctx, fc.Args["name"].(string), fc.Args["description"].(*string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.Habit) graphql.Marshaler {
-			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.Habit) graphql.Marshaler {
+			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1667,8 +1686,8 @@ func (ec *executionContext) _Mutation_updateHabit(ctx context.Context, field gra
 			return ec.Resolvers.Mutation().UpdateHabit(ctx, fc.Args["id"].(string), fc.Args["name"].(*string), fc.Args["description"].(*string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.Habit) graphql.Marshaler {
-			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.Habit) graphql.Marshaler {
+			return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1755,8 +1774,8 @@ func (ec *executionContext) _Mutation_checkInHabit(ctx context.Context, field gr
 			return ec.Resolvers.Mutation().CheckInHabit(ctx, fc.Args["habitId"].(string), fc.Args["date"].(*string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.HabitLog) graphql.Marshaler {
-			return ec.marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLog(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.HabitLog) graphql.Marshaler {
+			return ec.marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLog(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1874,8 +1893,8 @@ func (ec *executionContext) _Query_habits(ctx context.Context, field graphql.Col
 			return ec.Resolvers.Query().Habits(ctx)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.Habit) graphql.Marshaler {
-			return ec.marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*models.Habit) graphql.Marshaler {
+			return ec.marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1907,8 +1926,8 @@ func (ec *executionContext) _Query_habit(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.Query().Habit(ctx, fc.Args["id"].(string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.Habit) graphql.Marshaler {
-			return ec.marshalOHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.Habit) graphql.Marshaler {
+			return ec.marshalOHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx, selections, v)
 		},
 		true,
 		false,
@@ -1951,8 +1970,8 @@ func (ec *executionContext) _Query_habitLogs(ctx context.Context, field graphql.
 			return ec.Resolvers.Query().HabitLogs(ctx, fc.Args["habitId"].(string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.HabitLog) graphql.Marshaler {
-			return ec.marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLogᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*models.HabitLog) graphql.Marshaler {
+			return ec.marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLogᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2070,8 +2089,8 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 			return obj.ID, nil
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v int) graphql.Marshaler {
-			return ec.marshalNID2int(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNID2string(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2139,8 +2158,8 @@ func (ec *executionContext) _User_habits(ctx context.Context, field graphql.Coll
 			return ec.Resolvers.User().Habits(ctx, obj)
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v []*model.Habit) graphql.Marshaler {
-			return ec.marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitᚄ(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v []*models.Habit) graphql.Marshaler {
+			return ec.marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitᚄ(ctx, selections, v)
 		},
 		true,
 		true,
@@ -2168,7 +2187,7 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 			return ec.fieldContext_User_createdAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.CreatedAt, nil
+			return ec.Resolvers.User().CreatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -2179,7 +2198,7 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 	)
 }
 func (ec *executionContext) fieldContext_User_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("User", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("User", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -2191,7 +2210,7 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 			return ec.fieldContext_User_updatedAt(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return obj.UpdatedAt, nil
+			return ec.Resolvers.User().UpdatedAt(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
@@ -2202,7 +2221,7 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 	)
 }
 func (ec *executionContext) fieldContext_User_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("User", field, false, false, errors.New("field of type String does not have child fields"))
+	return graphql.NewScalarFieldContext("User", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -3317,7 +3336,7 @@ func (ec *executionContext) _AuthPayLoad(ctx context.Context, sel ast.SelectionS
 
 var habitImplementors = []string{"Habit"}
 
-func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, obj *model.Habit) graphql.Marshaler {
+func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, obj *models.Habit) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, habitImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3330,53 +3349,284 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 		case "id":
 			out.Values[i] = ec._Habit_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "name":
 			out.Values[i] = ec._Habit_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "description":
 			out.Values[i] = ec._Habit_description(ctx, field, obj)
 			if out.Values[i] == graphql.RequiredNull {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "currentStreak":
-			out.Values[i] = ec._Habit_currentStreak(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_currentStreak(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "longerStreak":
-			out.Values[i] = ec._Habit_longerStreak(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_longerStreak(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "habitLogs":
-			out.Values[i] = ec._Habit_habitLogs(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_habitLogs(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "isCompleted":
-			out.Values[i] = ec._Habit_isCompleted(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_isCompleted(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "user":
-			out.Values[i] = ec._Habit_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_user(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
-			out.Values[i] = ec._Habit_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_createdAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "updatedAt":
-			out.Values[i] = ec._Habit_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Habit_updatedAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3400,7 +3650,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 
 var habitLogImplementors = []string{"HabitLog"}
 
-func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet, obj *model.HabitLog) graphql.Marshaler {
+func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet, obj *models.HabitLog) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, habitLogImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3413,28 +3663,160 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._HabitLog_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "completedDate":
-			out.Values[i] = ec._HabitLog_completedDate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._HabitLog_completedDate(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "habit":
-			out.Values[i] = ec._HabitLog_habit(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._HabitLog_habit(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
-			out.Values[i] = ec._HabitLog_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._HabitLog_createdAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "updatedAt":
-			out.Values[i] = ec._HabitLog_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._HabitLog_updatedAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3802,15 +4184,81 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
-			out.Values[i] = ec._User_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_createdAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "updatedAt":
-			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_updatedAt(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4254,15 +4702,15 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNHabit2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx context.Context, sel ast.SelectionSet, v model.Habit) graphql.Marshaler {
+func (ec *executionContext) marshalNHabit2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx context.Context, sel ast.SelectionSet, v models.Habit) graphql.Marshaler {
 	return ec._Habit(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Habit) graphql.Marshaler {
+func (ec *executionContext) marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Habit) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx, sel, v[i])
+		return ec.marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4274,7 +4722,7 @@ func (ec *executionContext) marshalNHabit2ᚕᚖgithubᚗcomᚋcarloscfgos1980�
 	return ret
 }
 
-func (ec *executionContext) marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx context.Context, sel ast.SelectionSet, v *model.Habit) graphql.Marshaler {
+func (ec *executionContext) marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx context.Context, sel ast.SelectionSet, v *models.Habit) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4284,15 +4732,15 @@ func (ec *executionContext) marshalNHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgr
 	return ec._Habit(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNHabitLog2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLog(ctx context.Context, sel ast.SelectionSet, v model.HabitLog) graphql.Marshaler {
+func (ec *executionContext) marshalNHabitLog2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLog(ctx context.Context, sel ast.SelectionSet, v models.HabitLog) graphql.Marshaler {
 	return ec._HabitLog(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.HabitLog) graphql.Marshaler {
+func (ec *executionContext) marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLogᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.HabitLog) graphql.Marshaler {
 	ret := graphql.MarshalSliceConcurrently(ctx, len(v), 0, false, func(ctx context.Context, i int) graphql.Marshaler {
 		fc := graphql.GetFieldContext(ctx)
 		fc.Result = &v[i]
-		return ec.marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLog(ctx, sel, v[i])
+		return ec.marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLog(ctx, sel, v[i])
 	})
 
 	for _, e := range ret {
@@ -4304,7 +4752,7 @@ func (ec *executionContext) marshalNHabitLog2ᚕᚖgithubᚗcomᚋcarloscfgos198
 	return ret
 }
 
-func (ec *executionContext) marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabitLog(ctx context.Context, sel ast.SelectionSet, v *model.HabitLog) graphql.Marshaler {
+func (ec *executionContext) marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabitLog(ctx context.Context, sel ast.SelectionSet, v *models.HabitLog) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
@@ -4312,22 +4760,6 @@ func (ec *executionContext) marshalNHabitLog2ᚖgithubᚗcomᚋcarloscfgos1980�
 		return graphql.Null
 	}
 	return ec._HabitLog(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNID2int(ctx context.Context, v any) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	_ = sel
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v any) (string, error) {
@@ -4562,11 +4994,23 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐHabit(ctx context.Context, sel ast.SelectionSet, v *model.Habit) graphql.Marshaler {
+func (ec *executionContext) marshalOHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐHabit(ctx context.Context, sel ast.SelectionSet, v *models.Habit) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Habit(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOString2string(ctx context.Context, v any) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
+	_ = ctx
+	res := graphql.MarshalString(v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

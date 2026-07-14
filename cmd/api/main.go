@@ -19,13 +19,18 @@ func main() {
 		log.Printf("No .env file loaded: %v", err)
 	}
 
-	db, err := database.InitDB("./data/habit.db")
+	dbPath := os.Getenv("DATABASE_PATH")
+	if dbPath == "" {
+		dbPath = "./data/habit.db"
+	}
+
+	db, err := database.InitDB(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer db.Close()
 
-	log.Println("Database initialized successfully.")
+	log.Printf("Database initialized successfully: %s", dbPath)
 
 	userRepo := repository.NewUserRepository(db)
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{

@@ -29,18 +29,26 @@ func (r *UserRepository) CreateUser(username string, email string, hashedPasswor
 		return nil, fmt.Errorf("failed to generate user ID: %w", err)
 	}
 
-	_, err = r.DB.Exec("INSERT INTO users (id, username, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", id, username, email, hashedPassword, now, now)
+	_, err = r.DB.Exec("INSERT INTO users (id, username, email, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)", id, username, email, hashedPassword, now, now)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return nil, fmt.Errorf("email already registered")
+			if strings.Contains(err.Error(), "users.email") {
+				return nil, fmt.Errorf("email already registered")
+			}
+
+			if strings.Contains(err.Error(), "users.username") {
+				return nil, fmt.Errorf("username already taken")
+			}
+
+			return nil, fmt.Errorf("user already exists")
 		}
 
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	var user models.User
-	err = r.DB.QueryRow("SELECT id, username, email, password, created_at, updated_at FROM users WHERE id = ?", id).Scan(
+	err = r.DB.QueryRow("SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = ?", id).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -58,7 +66,7 @@ func (r *UserRepository) CreateUser(username string, email string, hashedPasswor
 
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := r.DB.QueryRow("SELECT id, username, email, password, created_at, updated_at FROM users WHERE email = ?", email).Scan(
+	err := r.DB.QueryRow("SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE email = ?", email).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -81,7 +89,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 
 func (r *UserRepository) GetUserByID(id string) (*models.User, error) {
 	var user models.User
-	err := r.DB.QueryRow("SELECT id, username, email, password, created_at, updated_at FROM users WHERE id = ?", id).Scan(
+	err := r.DB.QueryRow("SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = ?", id).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -138,7 +146,7 @@ func (r *UserRepository) UpdateUser(id string, username *string, email *string, 
 	}
 
 	if password != nil {
-		setClauses = append(setClauses, "password = ?")
+		setClauses = append(setClauses, "password_hash = ?")
 		args = append(args, *password)
 	}
 
@@ -159,7 +167,15 @@ func (r *UserRepository) UpdateUser(id string, username *string, email *string, 
 	_, err := r.DB.Exec(query, args...)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			return nil, fmt.Errorf("email already in use")
+			if strings.Contains(err.Error(), "users.email") {
+				return nil, fmt.Errorf("email already in use")
+			}
+
+			if strings.Contains(err.Error(), "users.username") {
+				return nil, fmt.Errorf("username already in use")
+			}
+
+			return nil, fmt.Errorf("conflicting user data")
 		}
 
 		return nil, fmt.Errorf("failed to update user: %w", err)

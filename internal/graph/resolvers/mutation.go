@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/model"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/utils"
 )
 
-func (r *mutationResolver) Register(ctx context.Context, name string, email string, password string) (*models.AuthPayload, error) {
+func (r *mutationResolver) Register(ctx context.Context, name string, email string, password string) (*model.AuthPayLoad, error) {
 	err := utils.ValidateName(name)
 	if err != nil {
 		return nil, fmt.Errorf("invalid name: %w", err)
@@ -40,14 +40,14 @@ func (r *mutationResolver) Register(ctx context.Context, name string, email stri
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &models.AuthPayload{
+	return &model.AuthPayLoad{
 		Token: token,
 		User:  user,
 	}, nil
 
 }
 
-func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*models.AuthPayload, error) {
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.AuthPayLoad, error) {
 	// Step 1: Fetch user by email
 	user, err := r.UserRepo.GetUserByEmail(email)
 	if err != nil {
@@ -66,7 +66,7 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &models.AuthPayload{
+	return &model.AuthPayLoad{
 		Token: token,
 		User:  user,
 	}, nil

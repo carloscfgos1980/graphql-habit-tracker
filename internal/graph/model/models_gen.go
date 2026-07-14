@@ -11,27 +11,6 @@ type AuthPayLoad struct {
 	User  *models.User `json:"user"`
 }
 
-type Habit struct {
-	ID            string       `json:"id"`
-	Name          string       `json:"name"`
-	Description   *string      `json:"description,omitempty"`
-	CurrentStreak int32        `json:"currentStreak"`
-	LongerStreak  int32        `json:"longerStreak"`
-	HabitLogs     []*HabitLog  `json:"habitLogs"`
-	IsCompleted   bool         `json:"isCompleted"`
-	User          *models.User `json:"user"`
-	CreatedAt     string       `json:"createdAt"`
-	UpdatedAt     string       `json:"updatedAt"`
-}
-
-type HabitLog struct {
-	ID            string `json:"id"`
-	CompletedDate string `json:"completedDate"`
-	Habit         *Habit `json:"habit"`
-	CreatedAt     string `json:"createdAt"`
-	UpdatedAt     string `json:"updatedAt"`
-}
-
 type Mutation struct {
 }
 
