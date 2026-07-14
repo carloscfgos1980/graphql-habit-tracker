@@ -9,6 +9,7 @@ import (
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/database"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/generated"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/resolvers"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/middleware"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -51,7 +52,7 @@ func main() {
 		playground.Handler("GraphQL Playground", "/graphql").ServeHTTP(c.Writer, c.Request)
 	})
 
-	router.POST("/graphql", func(c *gin.Context) {
+	router.POST("/graphql", middleware.AuthMiddleware(), func(c *gin.Context) {
 		graphqlHandler.ServeHTTP(c.Writer, c.Request)
 	})
 
