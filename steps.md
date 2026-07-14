@@ -15,3 +15,8 @@ go run github.com/99designs/gqlgen generate
 go install github.com/air-verse/air@latest
 export PATH="$PATH:$(go env GOPATH)/bin"
 # Needed because `go install` puts `air` in GOPATH/bin, which is not always on zsh's PATH.
+
+
+goose -dir ./migrations sqlite3 habit.db up
+goose -dir ./migrations sqlite3 habit.db status
+goose -dir ./migrations sqlite3 habit.db down

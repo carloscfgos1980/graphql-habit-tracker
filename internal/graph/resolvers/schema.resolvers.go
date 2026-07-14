@@ -11,6 +11,7 @@ import (
 
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/generated"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/model"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
 )
 
 // Register is the resolver for the register field.
@@ -24,7 +25,7 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 }
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*model.User, error) {
+func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
 	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
 }
 
@@ -59,7 +60,7 @@ func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool,
 }
 
 // Me is the resolver for the me field.
-func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	panic(fmt.Errorf("not implemented: Me - me"))
 }
 
@@ -78,13 +79,27 @@ func (r *queryResolver) HabitLogs(ctx context.Context, habitID string) ([]*model
 	panic(fmt.Errorf("not implemented: HabitLogs - habitLogs"))
 }
 
+// Name is the resolver for the name field.
+func (r *userResolver) Name(ctx context.Context, obj *models.User) (string, error) {
+	panic(fmt.Errorf("not implemented: Name - name"))
+}
+
+// Habits is the resolver for the habits field.
+func (r *userResolver) Habits(ctx context.Context, obj *models.User) ([]*model.Habit, error) {
+	panic(fmt.Errorf("not implemented: Habits - habits"))
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type (
 	mutationResolver struct{ *Resolver }
 	queryResolver    struct{ *Resolver }
+	userResolver     struct{ *Resolver }
 )

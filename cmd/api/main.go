@@ -9,6 +9,7 @@ import (
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/database"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/generated"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/resolvers"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -26,8 +27,11 @@ func main() {
 
 	log.Println("Database initialized successfully.")
 
+	userRepo := repository.NewUserRepository(db)
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
-		Resolvers: &resolvers.Resolver{},
+		Resolvers: &resolvers.Resolver{
+			UserRepo: userRepo,
+		},
 	}))
 	var router *gin.Engine = gin.Default()
 	router.SetTrustedProxies(nil)

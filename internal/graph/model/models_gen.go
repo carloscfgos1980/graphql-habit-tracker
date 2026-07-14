@@ -2,22 +2,26 @@
 
 package model
 
+import (
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
+)
+
 type AuthPayLoad struct {
-	Token string `json:"token"`
-	User  *User  `json:"user"`
+	Token string       `json:"token"`
+	User  *models.User `json:"user"`
 }
 
 type Habit struct {
-	ID            string      `json:"id"`
-	Name          string      `json:"name"`
-	Description   *string     `json:"description,omitempty"`
-	CurrentStreak int32       `json:"currentStreak"`
-	LongerStreak  int32       `json:"longerStreak"`
-	HabitLogs     []*HabitLog `json:"habitLogs"`
-	IsCompleted   bool        `json:"isCompleted"`
-	User          *User       `json:"user"`
-	CreatedAt     string      `json:"createdAt"`
-	UpdatedAt     string      `json:"updatedAt"`
+	ID            string       `json:"id"`
+	Name          string       `json:"name"`
+	Description   *string      `json:"description,omitempty"`
+	CurrentStreak int32        `json:"currentStreak"`
+	LongerStreak  int32        `json:"longerStreak"`
+	HabitLogs     []*HabitLog  `json:"habitLogs"`
+	IsCompleted   bool         `json:"isCompleted"`
+	User          *models.User `json:"user"`
+	CreatedAt     string       `json:"createdAt"`
+	UpdatedAt     string       `json:"updatedAt"`
 }
 
 type HabitLog struct {
@@ -32,13 +36,4 @@ type Mutation struct {
 }
 
 type Query struct {
-}
-
-type User struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Email     string   `json:"email"`
-	Habits    []*Habit `json:"habits"`
-	CreatedAt string   `json:"createdAt"`
-	UpdatedAt string   `json:"updatedAt"`
 }
