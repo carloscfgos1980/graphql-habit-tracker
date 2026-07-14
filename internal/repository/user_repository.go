@@ -115,26 +115,6 @@ func (r *UserRepository) UpdateUser(id string, username *string, email *string, 
 	// Data
 	var args []interface{}
 
-	// SQL Statement
-	// UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?
-
-	// UPDATE users SET name = ? WHERE id = ?
-	// UPDATE users SET email = ? WHERE id = ?
-	// UPDATE users SET password = ? WHERE id = ?
-	// UPDATE users SET name = ?, email = ? WHERE id = ?
-
-	// setClauses -> ["name = ?"]
-	// args       -> ["Samantha"]
-
-	// setClauses -> ["email = ?"]
-	// args       -> ["Samantha-smith@test.com"]
-
-	// setClauses -> ["password = ?"]
-	// args       -> ["MyPass@13456"]
-
-	// setClauses -> ["name = ?", "email = ?"]
-	// args       -> ["Samantha", "Samantha-smith@test.com"]
-
 	if username != nil {
 		setClauses = append(setClauses, "username = ?")
 		args = append(args, *username)

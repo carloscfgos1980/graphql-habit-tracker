@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/model"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/middleware"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/utils"
 )
 
@@ -73,46 +75,54 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 
 }
 
-// func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
-// 	userID, ok := middleware.GetUserID(ctx)
-// 	if !ok {
-// 		return nil, fmt.Errorf("unauthorized")
-// 	}
+func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+	//fetch the user from the database to ensure they exist
+	dbUser, err := r.UserRepo.GetUserByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("user not found: %w", err)
+	}
+	newName := &dbUser.Username
+	newEmail := &dbUser.Email
+	newPassword := &dbUser.Password
+	if name != nil {
+		err := utils.ValidateName(*name)
+		if err != nil {
+			return nil, fmt.Errorf("invalid name: %w", err)
+		}
+		newName = name
+	}
 
-// 	if name != nil {
-// 		if err := utils.ValidateName(*name); err != nil {
-// 			return nil, fmt.Errorf("invalid name: %w", err)
-// 		}
-// 	}
+	if email != nil {
+		if err := utils.ValidateEmail(*email); err != nil {
+			return nil, fmt.Errorf("invalid email: %w", err)
+		}
+		newEmail = email
+	}
 
-// 	if email != nil {
-// 		if err := utils.ValidateEmail(*email); err != nil {
-// 			return nil, fmt.Errorf("invalid email: %w", err)
-// 		}
-// 	}
+	if password != nil {
+		if err := utils.ValidatePasswordStrength(*password); err != nil {
+			return nil, fmt.Errorf("invalid password: %w", err)
+		}
 
-// 	var hashedPassword *string
+		hash, err := utils.HashPassword(*password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to hash password: %w", err)
+		}
 
-// 	if password != nil {
-// 		if err := utils.ValidatePasswordStrength(*password); err != nil {
-// 			return nil, fmt.Errorf("invalid password: %w", err)
-// 		}
+		newPassword = &hash
+	}
 
-// 		hash, err := utils.HashPassword(*password)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("failed to hash password: %w", err)
-// 		}
+	updatedUser, err := r.UserRepo.UpdateUser(userID, newName, newEmail, newPassword)
+	if err != nil {
+		return nil, err
+	}
 
-// 		hashedPassword = &hash
-// 	}
-
-// 	user, err := r.UserRepo.UpdateUser(userID, name, email, hashedPassword)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return user, nil
-// }
+	return updatedUser, nil
+}
 
 // func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 // 	userID, ok := middleware.GetUserID(ctx)

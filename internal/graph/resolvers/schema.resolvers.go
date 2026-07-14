@@ -71,9 +71,9 @@ func (r *habitLogResolver) UpdatedAt(ctx context.Context, obj *models.HabitLog) 
 // Register is the resolver for the register field.
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
-	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
-}
+// func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
+// 	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+// }
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
@@ -106,9 +106,9 @@ func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool,
 }
 
 // Me is the resolver for the me field.
-func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
-	panic(fmt.Errorf("not implemented: Me - me"))
-}
+// func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
+// 	panic(fmt.Errorf("not implemented: Me - me"))
+// }
 
 // Habits is the resolver for the habits field.
 func (r *queryResolver) Habits(ctx context.Context) ([]*models.Habit, error) {
