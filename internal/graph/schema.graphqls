@@ -10,11 +10,11 @@ type User {
 type Habit {
   id: ID!
   name: String!
-  description: String
+  description: String!
   currentStreak: Int!
-  longerStreak: Int!
-  habitLogs: [HabitLog!]!
-  isCompleted: Boolean!
+  longestStreak: Int!
+  totalCompletions: Int!
+  logs: [HabitLog!]!
   user: User!
   createdAt: String!
   updatedAt: String!
@@ -22,31 +22,31 @@ type Habit {
 
 type HabitLog {
   id: ID!
-  completedDate: String!
   habit: Habit!
+  completedDate: String!
   createdAt: String!
-  updatedAt: String!
 }
 
-type AuthPayLoad {
+type AuthPayload {
   token: String!
   user: User!
 }
 
 type Query {
-  me: User!
+  me: User
   habits: [Habit!]!
   habit(id: ID!): Habit
-  habitLogs(habitId: ID!): [HabitLog!]! 
+  habitLogs(habitId: ID!): [HabitLog!]!
 }
 
 type Mutation {
-  register(name: String!, email: String!, password: String!): AuthPayLoad!
-  login(email: String!, password: String!): AuthPayLoad!
+  register(name: String!, email: String!, password: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+
   updateUser(name: String, email: String, password: String): User!
   deleteUser: Boolean!
 
-  createHabit(name: String!, description: String): Habit!
+  createHabit(name: String!, description: String!): Habit!
   updateHabit(id: ID!, name: String, description: String): Habit!
   deleteHabit(id: ID!): Boolean!
 

@@ -13,7 +13,6 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/model"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -40,22 +39,22 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AuthPayLoad struct {
+	AuthPayload struct {
 		Token func(childComplexity int) int
 		User  func(childComplexity int) int
 	}
 
 	Habit struct {
-		CreatedAt     func(childComplexity int) int
-		CurrentStreak func(childComplexity int) int
-		Description   func(childComplexity int) int
-		HabitLogs     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		IsCompleted   func(childComplexity int) int
-		LongerStreak  func(childComplexity int) int
-		Name          func(childComplexity int) int
-		UpdatedAt     func(childComplexity int) int
-		User          func(childComplexity int) int
+		CreatedAt        func(childComplexity int) int
+		CurrentStreak    func(childComplexity int) int
+		Description      func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Logs             func(childComplexity int) int
+		LongestStreak    func(childComplexity int) int
+		Name             func(childComplexity int) int
+		TotalCompletions func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+		User             func(childComplexity int) int
 	}
 
 	HabitLog struct {
@@ -63,12 +62,11 @@ type ComplexityRoot struct {
 		CreatedAt     func(childComplexity int) int
 		Habit         func(childComplexity int) int
 		ID            func(childComplexity int) int
-		UpdatedAt     func(childComplexity int) int
 	}
 
 	Mutation struct {
 		CheckInHabit   func(childComplexity int, habitID string, date *string) int
-		CreateHabit    func(childComplexity int, name string, description *string) int
+		CreateHabit    func(childComplexity int, name string, description string) int
 		DeleteHabit    func(childComplexity int, id string) int
 		DeleteHabitLog func(childComplexity int, id string) int
 		DeleteUser     func(childComplexity int) int
@@ -101,25 +99,24 @@ type ComplexityRoot struct {
 
 type HabitResolver interface {
 	CurrentStreak(ctx context.Context, obj *models.Habit) (int32, error)
-	LongerStreak(ctx context.Context, obj *models.Habit) (int32, error)
-	HabitLogs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error)
-	IsCompleted(ctx context.Context, obj *models.Habit) (bool, error)
+	LongestStreak(ctx context.Context, obj *models.Habit) (int32, error)
+	TotalCompletions(ctx context.Context, obj *models.Habit) (int32, error)
+	Logs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error)
 	User(ctx context.Context, obj *models.Habit) (*models.User, error)
 	CreatedAt(ctx context.Context, obj *models.Habit) (string, error)
 	UpdatedAt(ctx context.Context, obj *models.Habit) (string, error)
 }
 type HabitLogResolver interface {
-	CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error)
 	Habit(ctx context.Context, obj *models.HabitLog) (*models.Habit, error)
+	CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error)
 	CreatedAt(ctx context.Context, obj *models.HabitLog) (string, error)
-	UpdatedAt(ctx context.Context, obj *models.HabitLog) (string, error)
 }
 type MutationResolver interface {
-	Register(ctx context.Context, name string, email string, password string) (*model.AuthPayLoad, error)
-	Login(ctx context.Context, email string, password string) (*model.AuthPayLoad, error)
+	Register(ctx context.Context, name string, email string, password string) (*models.AuthPayload, error)
+	Login(ctx context.Context, email string, password string) (*models.AuthPayload, error)
 	UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error)
 	DeleteUser(ctx context.Context) (bool, error)
-	CreateHabit(ctx context.Context, name string, description *string) (*models.Habit, error)
+	CreateHabit(ctx context.Context, name string, description string) (*models.Habit, error)
 	UpdateHabit(ctx context.Context, id string, name *string, description *string) (*models.Habit, error)
 	DeleteHabit(ctx context.Context, id string) (bool, error)
 	CheckInHabit(ctx context.Context, habitID string, date *string) (*models.HabitLog, error)
@@ -157,18 +154,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
-	case "AuthPayLoad.token":
-		if e.ComplexityRoot.AuthPayLoad.Token == nil {
+	case "AuthPayload.token":
+		if e.ComplexityRoot.AuthPayload.Token == nil {
 			break
 		}
 
-		return e.ComplexityRoot.AuthPayLoad.Token(childComplexity), true
-	case "AuthPayLoad.user":
-		if e.ComplexityRoot.AuthPayLoad.User == nil {
+		return e.ComplexityRoot.AuthPayload.Token(childComplexity), true
+	case "AuthPayload.user":
+		if e.ComplexityRoot.AuthPayload.User == nil {
 			break
 		}
 
-		return e.ComplexityRoot.AuthPayLoad.User(childComplexity), true
+		return e.ComplexityRoot.AuthPayload.User(childComplexity), true
 
 	case "Habit.createdAt":
 		if e.ComplexityRoot.Habit.CreatedAt == nil {
@@ -188,36 +185,36 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Habit.Description(childComplexity), true
-	case "Habit.habitLogs":
-		if e.ComplexityRoot.Habit.HabitLogs == nil {
-			break
-		}
-
-		return e.ComplexityRoot.Habit.HabitLogs(childComplexity), true
 	case "Habit.id":
 		if e.ComplexityRoot.Habit.ID == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Habit.ID(childComplexity), true
-	case "Habit.isCompleted":
-		if e.ComplexityRoot.Habit.IsCompleted == nil {
+	case "Habit.logs":
+		if e.ComplexityRoot.Habit.Logs == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Habit.IsCompleted(childComplexity), true
-	case "Habit.longerStreak":
-		if e.ComplexityRoot.Habit.LongerStreak == nil {
+		return e.ComplexityRoot.Habit.Logs(childComplexity), true
+	case "Habit.longestStreak":
+		if e.ComplexityRoot.Habit.LongestStreak == nil {
 			break
 		}
 
-		return e.ComplexityRoot.Habit.LongerStreak(childComplexity), true
+		return e.ComplexityRoot.Habit.LongestStreak(childComplexity), true
 	case "Habit.name":
 		if e.ComplexityRoot.Habit.Name == nil {
 			break
 		}
 
 		return e.ComplexityRoot.Habit.Name(childComplexity), true
+	case "Habit.totalCompletions":
+		if e.ComplexityRoot.Habit.TotalCompletions == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Habit.TotalCompletions(childComplexity), true
 	case "Habit.updatedAt":
 		if e.ComplexityRoot.Habit.UpdatedAt == nil {
 			break
@@ -255,12 +252,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.HabitLog.ID(childComplexity), true
-	case "HabitLog.updatedAt":
-		if e.ComplexityRoot.HabitLog.UpdatedAt == nil {
-			break
-		}
-
-		return e.ComplexityRoot.HabitLog.UpdatedAt(childComplexity), true
 
 	case "Mutation.checkInHabit":
 		if e.ComplexityRoot.Mutation.CheckInHabit == nil {
@@ -283,7 +274,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.ComplexityRoot.Mutation.CreateHabit(childComplexity, args["name"].(string), args["description"].(*string)), true
+		return e.ComplexityRoot.Mutation.CreateHabit(childComplexity, args["name"].(string), args["description"].(string)), true
 	case "Mutation.deleteHabit":
 		if e.ComplexityRoot.Mutation.DeleteHabit == nil {
 			break
@@ -524,11 +515,11 @@ var sources = []*ast.Source{
 type Habit {
   id: ID!
   name: String!
-  description: String
+  description: String!
   currentStreak: Int!
-  longerStreak: Int!
-  habitLogs: [HabitLog!]!
-  isCompleted: Boolean!
+  longestStreak: Int!
+  totalCompletions: Int!
+  logs: [HabitLog!]!
   user: User!
   createdAt: String!
   updatedAt: String!
@@ -536,38 +527,37 @@ type Habit {
 
 type HabitLog {
   id: ID!
-  completedDate: String!
   habit: Habit!
+  completedDate: String!
   createdAt: String!
-  updatedAt: String!
 }
 
-type AuthPayLoad {
+type AuthPayload {
   token: String!
   user: User!
 }
 
 type Query {
-  me: User!
+  me: User
   habits: [Habit!]!
   habit(id: ID!): Habit
-  habitLogs(habitId: ID!): [HabitLog!]! 
+  habitLogs(habitId: ID!): [HabitLog!]!
 }
 
 type Mutation {
-  register(name: String!, email: String!, password: String!): AuthPayLoad!
-  login(email: String!, password: String!): AuthPayLoad!
+  register(name: String!, email: String!, password: String!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+
   updateUser(name: String, email: String, password: String): User!
   deleteUser: Boolean!
 
-  createHabit(name: String!, description: String): Habit!
+  createHabit(name: String!, description: String!): Habit!
   updateHabit(id: ID!, name: String, description: String): Habit!
   deleteHabit(id: ID!): Boolean!
 
   checkInHabit(habitId: ID!, date: String): HabitLog!
   deleteHabitLog(id: ID!): Boolean!
-}
-`, BuiltIn: false},
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -575,14 +565,14 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // Each function is generated once per unique object type, deduplicating the
 // switch statements that were previously inlined in every fieldContext_* function.
 
-func (ec *executionContext) childFields_AuthPayLoad(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+func (ec *executionContext) childFields_AuthPayload(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 	switch field.Name {
 	case "token":
-		return ec.fieldContext_AuthPayLoad_token(ctx, field)
+		return ec.fieldContext_AuthPayload_token(ctx, field)
 	case "user":
-		return ec.fieldContext_AuthPayLoad_user(ctx, field)
+		return ec.fieldContext_AuthPayload_user(ctx, field)
 	}
-	return nil, fmt.Errorf("no field named %q was found under type AuthPayLoad", field.Name)
+	return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
 }
 
 func (ec *executionContext) childFields_Habit(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
@@ -595,12 +585,12 @@ func (ec *executionContext) childFields_Habit(ctx context.Context, field graphql
 		return ec.fieldContext_Habit_description(ctx, field)
 	case "currentStreak":
 		return ec.fieldContext_Habit_currentStreak(ctx, field)
-	case "longerStreak":
-		return ec.fieldContext_Habit_longerStreak(ctx, field)
-	case "habitLogs":
-		return ec.fieldContext_Habit_habitLogs(ctx, field)
-	case "isCompleted":
-		return ec.fieldContext_Habit_isCompleted(ctx, field)
+	case "longestStreak":
+		return ec.fieldContext_Habit_longestStreak(ctx, field)
+	case "totalCompletions":
+		return ec.fieldContext_Habit_totalCompletions(ctx, field)
+	case "logs":
+		return ec.fieldContext_Habit_logs(ctx, field)
 	case "user":
 		return ec.fieldContext_Habit_user(ctx, field)
 	case "createdAt":
@@ -615,14 +605,12 @@ func (ec *executionContext) childFields_HabitLog(ctx context.Context, field grap
 	switch field.Name {
 	case "id":
 		return ec.fieldContext_HabitLog_id(ctx, field)
-	case "completedDate":
-		return ec.fieldContext_HabitLog_completedDate(ctx, field)
 	case "habit":
 		return ec.fieldContext_HabitLog_habit(ctx, field)
+	case "completedDate":
+		return ec.fieldContext_HabitLog_completedDate(ctx, field)
 	case "createdAt":
 		return ec.fieldContext_HabitLog_createdAt(ctx, field)
-	case "updatedAt":
-		return ec.fieldContext_HabitLog_updatedAt(ctx, field)
 	}
 	return nil, fmt.Errorf("no field named %q was found under type HabitLog", field.Name)
 }
@@ -795,8 +783,8 @@ func (ec *executionContext) field_Mutation_createHabit_args(ctx context.Context,
 	}
 	args["name"] = arg0
 	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "description",
-		func(ctx context.Context, v any) (*string, error) {
-			return ec.unmarshalOString2ᚖstring(ctx, v)
+		func(ctx context.Context, v any) (string, error) {
+			return ec.unmarshalNString2string(ctx, v)
 		})
 	if err != nil {
 		return nil, err
@@ -1047,13 +1035,13 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _AuthPayLoad_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthPayLoad) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuthPayload_token(ctx context.Context, field graphql.CollectedField, obj *models.AuthPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AuthPayLoad_token(ctx, field)
+			return ec.fieldContext_AuthPayload_token(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.Token, nil
@@ -1066,17 +1054,17 @@ func (ec *executionContext) _AuthPayLoad_token(ctx context.Context, field graphq
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AuthPayLoad_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("AuthPayLoad", field, false, false, errors.New("field of type String does not have child fields"))
+func (ec *executionContext) fieldContext_AuthPayload_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("AuthPayload", field, false, false, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _AuthPayLoad_user(ctx context.Context, field graphql.CollectedField, obj *model.AuthPayLoad) (ret graphql.Marshaler) {
+func (ec *executionContext) _AuthPayload_user(ctx context.Context, field graphql.CollectedField, obj *models.AuthPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_AuthPayLoad_user(ctx, field)
+			return ec.fieldContext_AuthPayload_user(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
 			return obj.User, nil
@@ -1089,9 +1077,9 @@ func (ec *executionContext) _AuthPayLoad_user(ctx context.Context, field graphql
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_AuthPayLoad_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AuthPayload_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "AuthPayLoad",
+		Object:     "AuthPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1161,10 +1149,10 @@ func (ec *executionContext) _Habit_description(ctx context.Context, field graphq
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalOString2string(ctx, selections, v)
+			return ec.marshalNString2string(ctx, selections, v)
 		},
 		true,
-		false,
+		true,
 	)
 }
 func (ec *executionContext) fieldContext_Habit_description(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1194,16 +1182,16 @@ func (ec *executionContext) fieldContext_Habit_currentStreak(_ context.Context, 
 	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_longestStreak(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Habit_longerStreak(ctx, field)
+			return ec.fieldContext_Habit_longestStreak(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Habit().LongerStreak(ctx, obj)
+			return ec.Resolvers.Habit().LongestStreak(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v int32) graphql.Marshaler {
@@ -1213,20 +1201,43 @@ func (ec *executionContext) _Habit_longerStreak(ctx context.Context, field graph
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Habit_longerStreak(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Habit_longestStreak(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Int does not have child fields"))
 }
 
-func (ec *executionContext) _Habit_habitLogs(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
+func (ec *executionContext) _Habit_totalCompletions(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
 		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Habit_habitLogs(ctx, field)
+			return ec.fieldContext_Habit_totalCompletions(ctx, field)
 		},
 		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Habit().HabitLogs(ctx, obj)
+			return ec.Resolvers.Habit().TotalCompletions(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v int32) graphql.Marshaler {
+			return ec.marshalNInt2int32(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_Habit_totalCompletions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Int does not have child fields"))
+}
+
+func (ec *executionContext) _Habit_logs(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Habit_logs(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Habit().Logs(ctx, obj)
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v []*models.HabitLog) graphql.Marshaler {
@@ -1236,7 +1247,7 @@ func (ec *executionContext) _Habit_habitLogs(ctx context.Context, field graphql.
 		true,
 	)
 }
-func (ec *executionContext) fieldContext_Habit_habitLogs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Habit_logs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Habit",
 		Field:      field,
@@ -1247,29 +1258,6 @@ func (ec *executionContext) fieldContext_Habit_habitLogs(_ context.Context, fiel
 		},
 	}
 	return fc, nil
-}
-
-func (ec *executionContext) _Habit_isCompleted(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_Habit_isCompleted(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.Habit().IsCompleted(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v bool) graphql.Marshaler {
-			return ec.marshalNBoolean2bool(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_Habit_isCompleted(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("Habit", field, true, true, errors.New("field of type Boolean does not have child fields"))
 }
 
 func (ec *executionContext) _Habit_user(ctx context.Context, field graphql.CollectedField, obj *models.Habit) (ret graphql.Marshaler) {
@@ -1373,29 +1361,6 @@ func (ec *executionContext) fieldContext_HabitLog_id(_ context.Context, field gr
 	return graphql.NewScalarFieldContext("HabitLog", field, false, false, errors.New("field of type ID does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_HabitLog_completedDate(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.HabitLog().CompletedDate(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_HabitLog_completedDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
-}
-
 func (ec *executionContext) _HabitLog_habit(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1428,6 +1393,29 @@ func (ec *executionContext) fieldContext_HabitLog_habit(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _HabitLog_completedDate(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_HabitLog_completedDate(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.HabitLog().CompletedDate(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
+			return ec.marshalNString2string(ctx, selections, v)
+		},
+		true,
+		true,
+	)
+}
+func (ec *executionContext) fieldContext_HabitLog_completedDate(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
+}
+
 func (ec *executionContext) _HabitLog_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1451,29 +1439,6 @@ func (ec *executionContext) fieldContext_HabitLog_createdAt(_ context.Context, f
 	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
 }
 
-func (ec *executionContext) _HabitLog_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.HabitLog) (ret graphql.Marshaler) {
-	return graphql.ResolveField(
-		ctx,
-		ec.OperationContext,
-		field,
-		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.fieldContext_HabitLog_updatedAt(ctx, field)
-		},
-		func(ctx context.Context) (any, error) {
-			return ec.Resolvers.HabitLog().UpdatedAt(ctx, obj)
-		},
-		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v string) graphql.Marshaler {
-			return ec.marshalNString2string(ctx, selections, v)
-		},
-		true,
-		true,
-	)
-}
-func (ec *executionContext) fieldContext_HabitLog_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	return graphql.NewScalarFieldContext("HabitLog", field, true, true, errors.New("field of type String does not have child fields"))
-}
-
 func (ec *executionContext) _Mutation_register(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1487,8 +1452,8 @@ func (ec *executionContext) _Mutation_register(ctx context.Context, field graphq
 			return ec.Resolvers.Mutation().Register(ctx, fc.Args["name"].(string), fc.Args["email"].(string), fc.Args["password"].(string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.AuthPayLoad) graphql.Marshaler {
-			return ec.marshalNAuthPayLoad2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐAuthPayLoad(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.AuthPayload) graphql.Marshaler {
+			return ec.marshalNAuthPayload2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐAuthPayload(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1501,7 +1466,7 @@ func (ec *executionContext) fieldContext_Mutation_register(ctx context.Context, 
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AuthPayLoad(ctx, field)
+			return ec.childFields_AuthPayload(ctx, field)
 		},
 	}
 	defer func() {
@@ -1531,8 +1496,8 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 			return ec.Resolvers.Mutation().Login(ctx, fc.Args["email"].(string), fc.Args["password"].(string))
 		},
 		nil,
-		func(ctx context.Context, selections ast.SelectionSet, v *model.AuthPayLoad) graphql.Marshaler {
-			return ec.marshalNAuthPayLoad2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐAuthPayLoad(ctx, selections, v)
+		func(ctx context.Context, selections ast.SelectionSet, v *models.AuthPayload) graphql.Marshaler {
+			return ec.marshalNAuthPayload2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐAuthPayload(ctx, selections, v)
 		},
 		true,
 		true,
@@ -1545,7 +1510,7 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return ec.childFields_AuthPayLoad(ctx, field)
+			return ec.childFields_AuthPayload(ctx, field)
 		},
 	}
 	defer func() {
@@ -1639,7 +1604,7 @@ func (ec *executionContext) _Mutation_createHabit(ctx context.Context, field gra
 		},
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.Resolvers.Mutation().CreateHabit(ctx, fc.Args["name"].(string), fc.Args["description"].(*string))
+			return ec.Resolvers.Mutation().CreateHabit(ctx, fc.Args["name"].(string), fc.Args["description"].(string))
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *models.Habit) graphql.Marshaler {
@@ -1862,10 +1827,10 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 		},
 		nil,
 		func(ctx context.Context, selections ast.SelectionSet, v *models.User) graphql.Marshaler {
-			return ec.marshalNUser2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐUser(ctx, selections, v)
+			return ec.marshalOUser2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐUser(ctx, selections, v)
 		},
 		true,
-		true,
+		false,
 	)
 }
 func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3291,10 +3256,10 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** object.gotpl ****************************
 
-var authPayLoadImplementors = []string{"AuthPayLoad"}
+var authPayloadImplementors = []string{"AuthPayload"}
 
-func (ec *executionContext) _AuthPayLoad(ctx context.Context, sel ast.SelectionSet, obj *model.AuthPayLoad) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, authPayLoadImplementors)
+func (ec *executionContext) _AuthPayload(ctx context.Context, sel ast.SelectionSet, obj *models.AuthPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authPayloadImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferredFieldSet := graphql.NewFieldSet(nil)
@@ -3302,14 +3267,14 @@ func (ec *executionContext) _AuthPayLoad(ctx context.Context, sel ast.SelectionS
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuthPayLoad")
+			out.Values[i] = graphql.MarshalString("AuthPayload")
 		case "token":
-			out.Values[i] = ec._AuthPayLoad_token(ctx, field, obj)
+			out.Values[i] = ec._AuthPayload_token(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "user":
-			out.Values[i] = ec._AuthPayLoad_user(ctx, field, obj)
+			out.Values[i] = ec._AuthPayload_user(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3358,7 +3323,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "description":
 			out.Values[i] = ec._Habit_description(ctx, field, obj)
-			if out.Values[i] == graphql.RequiredNull {
+			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "currentStreak":
@@ -3399,7 +3364,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "longerStreak":
+		case "longestStreak":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3408,7 +3373,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Habit_longerStreak(ctx, field, obj)
+				res = ec._Habit_longestStreak(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3437,7 +3402,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "habitLogs":
+		case "totalCompletions":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3446,7 +3411,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Habit_habitLogs(ctx, field, obj)
+				res = ec._Habit_totalCompletions(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3475,7 +3440,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "isCompleted":
+		case "logs":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3484,7 +3449,7 @@ func (ec *executionContext) _Habit(ctx context.Context, sel ast.SelectionSet, ob
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Habit_isCompleted(ctx, field, obj)
+				res = ec._Habit_logs(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3665,44 +3630,6 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
-		case "completedDate":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._HabitLog_completedDate(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.IsDeferred() {
-				deferredFieldSet.AddField(field)
-				fieldIndex := len(deferredFieldSet.Values) - 1
-				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, deferredFieldSet)
-				})
-
-				for _, deferrable := range field.Deferrables {
-					view, ok := deferLabelToView[deferrable.Label]
-					if !ok {
-						view = deferredFieldSet.NewView()
-						deferLabelToView[deferrable.Label] = view
-					}
-					view.AddIndices(fieldIndex)
-				}
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "habit":
 			field := field
 
@@ -3741,7 +3668,7 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "createdAt":
+		case "completedDate":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3750,7 +3677,7 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._HabitLog_createdAt(ctx, field, obj)
+				res = ec._HabitLog_completedDate(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3779,7 +3706,7 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "updatedAt":
+		case "createdAt":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3788,7 +3715,7 @@ func (ec *executionContext) _HabitLog(ctx context.Context, sel ast.SelectionSet,
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._HabitLog_updatedAt(ctx, field, obj)
+				res = ec._HabitLog_createdAt(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -3972,7 +3899,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_me(ctx, field)
-				if res == graphql.Null {
+				if res == graphql.RequiredNull {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
 				return res
@@ -4672,18 +4599,18 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAuthPayLoad2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐAuthPayLoad(ctx context.Context, sel ast.SelectionSet, v model.AuthPayLoad) graphql.Marshaler {
-	return ec._AuthPayLoad(ctx, sel, &v)
+func (ec *executionContext) marshalNAuthPayload2githubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v models.AuthPayload) graphql.Marshaler {
+	return ec._AuthPayload(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAuthPayLoad2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋgraphᚋmodelᚐAuthPayLoad(ctx context.Context, sel ast.SelectionSet, v *model.AuthPayLoad) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthPayload2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v *models.AuthPayload) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AuthPayLoad(ctx, sel, v)
+	return ec._AuthPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
@@ -5001,18 +4928,6 @@ func (ec *executionContext) marshalOHabit2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgr
 	return ec._Habit(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOString2string(ctx context.Context, v any) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	_ = sel
-	_ = ctx
-	res := graphql.MarshalString(v)
-	return res
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -5029,6 +4944,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋcarloscfgos1980ᚋgraphqlᚑhabitᚑtrackerᚋinternalᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

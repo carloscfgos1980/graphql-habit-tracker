@@ -18,34 +18,24 @@ func (r *habitResolver) CurrentStreak(ctx context.Context, obj *models.Habit) (i
 	panic(fmt.Errorf("not implemented: CurrentStreak - currentStreak"))
 }
 
-// LongerStreak is the resolver for the longerStreak field.
-func (r *habitResolver) LongerStreak(ctx context.Context, obj *models.Habit) (int32, error) {
-	panic(fmt.Errorf("not implemented: LongerStreak - longerStreak"))
+// LongestStreak is the resolver for the longestStreak field.
+func (r *habitResolver) LongestStreak(ctx context.Context, obj *models.Habit) (int32, error) {
+	panic(fmt.Errorf("not implemented: LongestStreak - longestStreak"))
 }
 
-// HabitLogs is the resolver for the habitLogs field.
-func (r *habitResolver) HabitLogs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error) {
-	panic(fmt.Errorf("not implemented: HabitLogs - habitLogs"))
+// TotalCompletions is the resolver for the totalCompletions field.
+func (r *habitResolver) TotalCompletions(ctx context.Context, obj *models.Habit) (int32, error) {
+	panic(fmt.Errorf("not implemented: TotalCompletions - totalCompletions"))
 }
 
-// IsCompleted is the resolver for the isCompleted field.
-func (r *habitResolver) IsCompleted(ctx context.Context, obj *models.Habit) (bool, error) {
-	panic(fmt.Errorf("not implemented: IsCompleted - isCompleted"))
+// Logs is the resolver for the logs field.
+func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error) {
+	panic(fmt.Errorf("not implemented: Logs - logs"))
 }
 
 // User is the resolver for the user field.
 func (r *habitResolver) User(ctx context.Context, obj *models.Habit) (*models.User, error) {
 	panic(fmt.Errorf("not implemented: User - user"))
-}
-
-// CreatedAt is the resolver for the createdAt field.
-func (r *habitResolver) CreatedAt(ctx context.Context, obj *models.Habit) (string, error) {
-	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
-}
-
-// UpdatedAt is the resolver for the updatedAt field.
-func (r *habitResolver) UpdatedAt(ctx context.Context, obj *models.Habit) (string, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
 }
 
 // CompletedDate is the resolver for the completedDate field.
@@ -68,23 +58,6 @@ func (r *habitLogResolver) UpdatedAt(ctx context.Context, obj *models.HabitLog) 
 	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
 }
 
-// Register is the resolver for the register field.
-
-// UpdateUser is the resolver for the updateUser field.
-// func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
-// 	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
-// }
-
-// // DeleteUser is the resolver for the deleteUser field.
-// func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
-// 	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
-// }
-
-// CreateHabit is the resolver for the createHabit field.
-func (r *mutationResolver) CreateHabit(ctx context.Context, name string, description *string) (*models.Habit, error) {
-	panic(fmt.Errorf("not implemented: CreateHabit - createHabit"))
-}
-
 // UpdateHabit is the resolver for the updateHabit field.
 func (r *mutationResolver) UpdateHabit(ctx context.Context, id string, name *string, description *string) (*models.Habit, error) {
 	panic(fmt.Errorf("not implemented: UpdateHabit - updateHabit"))
@@ -104,11 +77,6 @@ func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, dat
 func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool, error) {
 	panic(fmt.Errorf("not implemented: DeleteHabitLog - deleteHabitLog"))
 }
-
-// Me is the resolver for the me field.
-// func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
-// 	panic(fmt.Errorf("not implemented: Me - me"))
-// }
 
 // Habits is the resolver for the habits field.
 func (r *queryResolver) Habits(ctx context.Context) ([]*models.Habit, error) {

@@ -34,9 +34,11 @@ func main() {
 	log.Printf("Database initialized successfully: %s", dbPath)
 
 	userRepo := repository.NewUserRepository(db)
+	habitRepo := repository.NewHabitRepository(db)
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			UserRepo: userRepo,
+			UserRepo:  userRepo,
+			HabitRepo: habitRepo,
 		},
 	}))
 	var router *gin.Engine = gin.Default()

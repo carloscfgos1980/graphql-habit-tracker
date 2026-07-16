@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/carloscfgos1980/graphql-habit-tracker/internal/graph/model"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/middleware"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/utils"
 )
 
-func (r *mutationResolver) Register(ctx context.Context, name string, email string, password string) (*model.AuthPayLoad, error) {
+func (r *mutationResolver) Register(ctx context.Context, name string, email string, password string) (*models.AuthPayload, error) {
 	err := utils.ValidateName(name)
 	if err != nil {
 		return nil, fmt.Errorf("invalid name: %w", err)
@@ -42,14 +41,14 @@ func (r *mutationResolver) Register(ctx context.Context, name string, email stri
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &model.AuthPayLoad{
+	return &models.AuthPayload{
 		Token: token,
 		User:  user,
 	}, nil
 
 }
 
-func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.AuthPayLoad, error) {
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*models.AuthPayload, error) {
 	// Step 1: Fetch user by email
 	user, err := r.UserRepo.GetUserByEmail(email)
 	if err != nil {
@@ -68,7 +67,7 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return &model.AuthPayLoad{
+	return &models.AuthPayload{
 		Token: token,
 		User:  user,
 	}, nil
@@ -141,4 +140,25 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// CreateHabit is the resolver for the createHabit field.
+func (r *mutationResolver) CreateHabit(ctx context.Context, name string, description string) (*models.Habit, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+	if err := utils.ValidateName(name); err != nil {
+		return nil, fmt.Errorf("invalid habit name: %w", err)
+	}
+	if err := utils.ValidateDescription(description); err != nil {
+		return nil, fmt.Errorf("invalid habit description: %w", err)
+	}
+
+	habit, err := r.HabitRepo.CreateHabit(userID, name, description)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create habit: %w", err)
+	}
+
+	return habit, nil
 }

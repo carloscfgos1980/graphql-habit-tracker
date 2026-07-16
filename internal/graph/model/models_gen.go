@@ -2,15 +2,6 @@
 
 package model
 
-import (
-	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
-)
-
-type AuthPayLoad struct {
-	Token string       `json:"token"`
-	User  *models.User `json:"user"`
-}
-
 type Mutation struct {
 }
 

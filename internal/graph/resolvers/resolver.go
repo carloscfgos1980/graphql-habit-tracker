@@ -10,5 +10,6 @@ import (
 // here.
 
 type Resolver struct {
-	UserRepo *repository.UserRepository
+	UserRepo  *repository.UserRepository
+	HabitRepo *repository.HabitRepository
 }
