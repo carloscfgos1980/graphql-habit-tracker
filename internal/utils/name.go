@@ -22,10 +22,10 @@ func ValidateName(name string) error {
 		if unicode.IsLetter(char) {
 			continue
 		}
-		if char == ' ' || char == '-' || char == '_' || char == '\'' {
+		if char == ' ' || char == '-' || char == '_' || char == '\'' || char == '.' {
 			continue
 		}
-		return errors.New("name can only contains letters, spaces, hyphens, underscores, and apostrophes")
+		return errors.New("name can only contains letters, spaces, hyphens, underscores, apostrophes, and periods")
 	}
 
 	return nil
