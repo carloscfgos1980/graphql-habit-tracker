@@ -33,11 +33,6 @@ func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.
 	panic(fmt.Errorf("not implemented: Logs - logs"))
 }
 
-// User is the resolver for the user field.
-func (r *habitResolver) User(ctx context.Context, obj *models.Habit) (*models.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
-}
-
 // CompletedDate is the resolver for the completedDate field.
 func (r *habitLogResolver) CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error) {
 	panic(fmt.Errorf("not implemented: CompletedDate - completedDate"))
@@ -76,11 +71,6 @@ func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, dat
 // DeleteHabitLog is the resolver for the deleteHabitLog field.
 func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool, error) {
 	panic(fmt.Errorf("not implemented: DeleteHabitLog - deleteHabitLog"))
-}
-
-// Habit is the resolver for the habit field.
-func (r *queryResolver) Habit(ctx context.Context, id string) (*models.Habit, error) {
-	panic(fmt.Errorf("not implemented: Habit - habit"))
 }
 
 // HabitLogs is the resolver for the habitLogs field.
