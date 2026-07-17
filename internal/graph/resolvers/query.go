@@ -22,3 +22,18 @@ func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 
 	return user, nil
 }
+
+// Habits is the resolver for the habits field.
+func (r *queryResolver) Habits(ctx context.Context) ([]*models.Habit, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	habits, err := r.HabitRepo.GetHabitsByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return habits, nil
+}
