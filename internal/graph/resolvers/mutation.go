@@ -169,11 +169,40 @@ func (r *mutationResolver) UpdateHabit(ctx context.Context, id string, name *str
 	if !ok {
 		return nil, fmt.Errorf("unauthorized")
 	}
-
+	if name != nil {
+		if err := utils.ValidateName(*name); err != nil {
+			return nil, fmt.Errorf("invalid habit name: %w", err)
+		}
+	}
+	if description != nil {
+		if err := utils.ValidateDescription(*description); err != nil {
+			return nil, fmt.Errorf("invalid habit description: %w", err)
+		}
+	}
 	habit, err := r.HabitRepo.UpdateHabit(id, userID, name, description)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update habit: %w", err)
 	}
 
 	return habit, nil
+}
+
+// DeleteHabit is the resolver for the deleteHabit field.
+func (r *mutationResolver) DeleteHabit(ctx context.Context, id string) (bool, error) {
+	userID, ok := middleware.GetUserID(ctx)
+
+	if !ok {
+		return false, fmt.Errorf("unauthorized")
+	}
+
+	deleted, err := r.HabitRepo.DeleteHabit(id, userID)
+	if err != nil {
+		return false, err
+	}
+
+	if !deleted {
+		return false, fmt.Errorf("habit not found")
+	}
+
+	return true, nil
 }
