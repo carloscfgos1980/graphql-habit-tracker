@@ -162,3 +162,18 @@ func (r *mutationResolver) CreateHabit(ctx context.Context, name string, descrip
 
 	return habit, nil
 }
+
+// UpdateHabit is the resolver for the updateHabit field.
+func (r *mutationResolver) UpdateHabit(ctx context.Context, id string, name *string, description *string) (*models.Habit, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	habit, err := r.HabitRepo.UpdateHabit(id, userID, name, description)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update habit: %w", err)
+	}
+
+	return habit, nil
+}
