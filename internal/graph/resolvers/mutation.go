@@ -221,12 +221,23 @@ func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, dat
 		var err error
 		completedDate, err = time.Parse(time.RFC3339, *date)
 		if err != nil {
-			return nil, fmt.Errorf("invalid date format: %w", err)
+			completedDate, err = time.Parse("2006-01-02", *date)
+			if err != nil {
+				return nil, fmt.Errorf("invalid date format: use RFC3339 or YYYY-MM-DD")
+			}
+			completedDate = completedDate.UTC()
 		}
 	}
 	_, err := r.HabitRepo.GetHabitWithUserCheck(habitID, userID)
 	if err != nil {
 		return nil, err
+	}
+	isDuplicate, err := r.HabitLogRepo.CheckDuplicateLog(habitID, completedDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check duplicate habit log: %w", err)
+	}
+	if isDuplicate {
+		return nil, fmt.Errorf("duplicate habit log")
 	}
 	habitLog, err := r.HabitLogRepo.CreateHabitLog(habitID, completedDate)
 	if err != nil {

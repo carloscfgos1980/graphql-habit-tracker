@@ -17,6 +17,6 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 # Needed because `go install` puts `air` in GOPATH/bin, which is not always on zsh's PATH.
 
 
-goose -dir ./migrations sqlite3 habit.db up
-goose -dir ./migrations sqlite3 habit.db status
-goose -dir ./migrations sqlite3 habit.db down
+goose -dir ./migrations sqlite3 ./data/habit.db up
+goose -dir ./migrations sqlite3 ./data/habit.db status
+goose -dir ./migrations sqlite3 ./data/habit.db down
