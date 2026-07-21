@@ -245,3 +245,18 @@ func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, dat
 	}
 	return habitLog, nil
 }
+
+// Habit is the resolver for the habit field.
+func (r *habitLogResolver) Habit(ctx context.Context, obj *models.HabitLog) (*models.Habit, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	habit, err := r.HabitRepo.GetHabitWithUserCheck(obj.HabitID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return habit, nil
+}

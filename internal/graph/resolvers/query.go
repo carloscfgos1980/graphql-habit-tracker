@@ -52,3 +52,23 @@ func (r *queryResolver) Habit(ctx context.Context, id string) (*models.Habit, er
 
 	return habit, nil
 }
+
+// HabitLogs is the resolver for the habitLogs field.
+func (r *queryResolver) HabitLogs(ctx context.Context, habitID string) ([]*models.HabitLog, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	_, err := r.HabitRepo.GetHabitWithUserCheck(habitID, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	habitLogs, err := r.HabitLogRepo.GetHabitLogsByHabitID(habitID)
+	if err != nil {
+		return nil, err
+	}
+
+	return habitLogs, nil
+}
