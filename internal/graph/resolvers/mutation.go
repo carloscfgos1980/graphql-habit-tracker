@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/middleware"
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
@@ -205,4 +206,31 @@ func (r *mutationResolver) DeleteHabit(ctx context.Context, id string) (bool, er
 	}
 
 	return true, nil
+}
+
+// CheckInHabit is the resolver for the checkInHabit field.
+func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, date *string) (*models.HabitLog, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("unauthorized")
+	}
+	var completedDate time.Time
+	if date == nil {
+		completedDate = time.Now().UTC()
+	} else {
+		var err error
+		completedDate, err = time.Parse(time.RFC3339, *date)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format: %w", err)
+		}
+	}
+	_, err := r.HabitRepo.GetHabitWithUserCheck(habitID, userID)
+	if err != nil {
+		return nil, err
+	}
+	habitLog, err := r.HabitLogRepo.CreateHabitLog(habitID, completedDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create habit log: %w", err)
+	}
+	return habitLog, nil
 }

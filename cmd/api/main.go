@@ -35,10 +35,12 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	habitRepo := repository.NewHabitRepository(db)
+	habitLogRepo := repository.NewHabitLogRepository(db)
 	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
 		Resolvers: &resolvers.Resolver{
-			UserRepo:  userRepo,
-			HabitRepo: habitRepo,
+			UserRepo:     userRepo,
+			HabitRepo:    habitRepo,
+			HabitLogRepo: habitLogRepo,
 		},
 	}))
 	var router *gin.Engine = gin.Default()

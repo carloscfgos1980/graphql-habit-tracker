@@ -33,24 +33,19 @@ func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.
 	panic(fmt.Errorf("not implemented: Logs - logs"))
 }
 
-// CompletedDate is the resolver for the completedDate field.
-func (r *habitLogResolver) CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error) {
-	panic(fmt.Errorf("not implemented: CompletedDate - completedDate"))
-}
-
 // Habit is the resolver for the habit field.
 func (r *habitLogResolver) Habit(ctx context.Context, obj *models.HabitLog) (*models.Habit, error) {
 	panic(fmt.Errorf("not implemented: Habit - habit"))
 }
 
+// CompletedDate is the resolver for the completedDate field.
+func (r *habitLogResolver) CompletedDate(ctx context.Context, obj *models.HabitLog) (string, error) {
+	panic(fmt.Errorf("not implemented: CompletedDate - completedDate"))
+}
+
 // CreatedAt is the resolver for the createdAt field.
 func (r *habitLogResolver) CreatedAt(ctx context.Context, obj *models.HabitLog) (string, error) {
 	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
-}
-
-// UpdatedAt is the resolver for the updatedAt field.
-func (r *habitLogResolver) UpdatedAt(ctx context.Context, obj *models.HabitLog) (string, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
 }
 
 // CheckInHabit is the resolver for the checkInHabit field.
@@ -100,3 +95,15 @@ type (
 	queryResolver    struct{ *Resolver }
 	userResolver     struct{ *Resolver }
 )
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *habitLogResolver) UpdatedAt(ctx context.Context, obj *models.HabitLog) (string, error) {
+	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
+}
+*/
