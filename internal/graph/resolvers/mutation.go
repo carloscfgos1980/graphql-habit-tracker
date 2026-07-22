@@ -246,17 +246,34 @@ func (r *mutationResolver) CheckInHabit(ctx context.Context, habitID string, dat
 	return habitLog, nil
 }
 
-// Habit is the resolver for the habit field.
-func (r *habitLogResolver) Habit(ctx context.Context, obj *models.HabitLog) (*models.Habit, error) {
+// DeleteHabitLog is the resolver for the deleteHabitLog field.
+func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool, error) {
 	userID, ok := middleware.GetUserID(ctx)
 	if !ok {
-		return nil, fmt.Errorf("unauthorized")
+		return false, fmt.Errorf("unauthorized")
 	}
-
-	habit, err := r.HabitRepo.GetHabitWithUserCheck(obj.HabitID, userID)
+	// fetch the habit log to ensure it exists and belongs to the user
+	habitLog, err := r.HabitLogRepo.GetHabitLogByID(id)
 	if err != nil {
-		return nil, err
+		return false, fmt.Errorf("failed to fetch habit log: %w", err)
 	}
-
-	return habit, nil
+	if habitLog == nil {
+		return false, fmt.Errorf("habit log not found")
+	}
+	// check if the habit log belongs to a habit owned by the user
+	habit, err := r.HabitRepo.GetHabitWithUserCheck(habitLog.HabitID, userID)
+	if err != nil {
+		return false, fmt.Errorf("unauthorized to delete this habit log: %w", err)
+	}
+	if habit == nil {
+		return false, fmt.Errorf("unauthorized to delete this habit log")
+	}
+	deleted, err := r.HabitLogRepo.DeleteHabitLog(id)
+	if err != nil {
+		return false, fmt.Errorf("failed to delete habit log: %w", err)
+	}
+	if !deleted {
+		return false, fmt.Errorf("habit log not found")
+	}
+	return true, nil
 }

@@ -33,11 +33,6 @@ func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.
 	panic(fmt.Errorf("not implemented: Logs - logs"))
 }
 
-// DeleteHabitLog is the resolver for the deleteHabitLog field.
-func (r *mutationResolver) DeleteHabitLog(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteHabitLog - deleteHabitLog"))
-}
-
 // Name is the resolver for the name field.
 func (r *userResolver) Name(ctx context.Context, obj *models.User) (string, error) {
 	return obj.Username, nil
