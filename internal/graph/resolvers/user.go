@@ -26,3 +26,8 @@ func (r *userResolver) Habits(ctx context.Context, obj *models.User) ([]*models.
 
 	return habits, nil
 }
+
+// Name is the resolver for the name field.
+func (r *userResolver) Name(ctx context.Context, obj *models.User) (string, error) {
+	return obj.Username, nil
+}

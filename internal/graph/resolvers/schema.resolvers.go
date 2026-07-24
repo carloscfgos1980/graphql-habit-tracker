@@ -23,16 +23,6 @@ func (r *habitResolver) LongestStreak(ctx context.Context, obj *models.Habit) (i
 	panic(fmt.Errorf("not implemented: LongestStreak - longestStreak"))
 }
 
-// TotalCompletions is the resolver for the totalCompletions field.
-func (r *habitResolver) TotalCompletions(ctx context.Context, obj *models.Habit) (int32, error) {
-	panic(fmt.Errorf("not implemented: TotalCompletions - totalCompletions"))
-}
-
-// Name is the resolver for the name field.
-func (r *userResolver) Name(ctx context.Context, obj *models.User) (string, error) {
-	return obj.Username, nil
-}
-
 // Habit returns generated.HabitResolver implementation.
 func (r *Resolver) Habit() generated.HabitResolver { return &habitResolver{r} }
 

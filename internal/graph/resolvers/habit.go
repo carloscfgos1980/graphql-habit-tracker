@@ -46,3 +46,17 @@ func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.
 
 	return logs, nil
 }
+
+// TotalCompletions is the resolver for the totalCompletions field.
+func (r *habitResolver) TotalCompletions(ctx context.Context, obj *models.Habit) (int32, error) {
+	if obj == nil {
+		return 0, fmt.Errorf("habit is required")
+	}
+
+	count, err := r.HabitLogRepo.CountTotalCompletions(obj.ID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to resolve total completions: %w", err)
+	}
+
+	return int32(count), nil
+}
