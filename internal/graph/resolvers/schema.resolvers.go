@@ -38,11 +38,6 @@ func (r *userResolver) Name(ctx context.Context, obj *models.User) (string, erro
 	return obj.Username, nil
 }
 
-// Habits is the resolver for the habits field.
-func (r *userResolver) Habits(ctx context.Context, obj *models.User) ([]*models.Habit, error) {
-	return []*models.Habit{}, nil
-}
-
 // Habit returns generated.HabitResolver implementation.
 func (r *Resolver) Habit() generated.HabitResolver { return &habitResolver{r} }
 
