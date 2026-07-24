@@ -32,3 +32,17 @@ func (r *habitResolver) User(ctx context.Context, obj *models.Habit) (*models.Us
 
 	return user, nil
 }
+
+// Logs is the resolver for the logs field.
+func (r *habitResolver) Logs(ctx context.Context, obj *models.Habit) ([]*models.HabitLog, error) {
+	if obj == nil {
+		return nil, fmt.Errorf("habit is required")
+	}
+
+	logs, err := r.HabitLogRepo.GetHabitLogsByHabitID(obj.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve habit logs: %w", err)
+	}
+
+	return logs, nil
+}
