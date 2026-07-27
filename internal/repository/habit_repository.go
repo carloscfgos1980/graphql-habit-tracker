@@ -18,6 +18,7 @@ func NewHabitRepository(db *sql.DB) *HabitRepository {
 	return &HabitRepository{DB: db}
 }
 
+// CreateHabit creates a new habit for a user in the database with the provided name and description.
 func (r *HabitRepository) CreateHabit(userID string, name string, description string) (*models.Habit, error) {
 	now := time.Now()
 

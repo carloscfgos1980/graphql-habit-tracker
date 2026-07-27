@@ -97,3 +97,21 @@ DeleteUser deletes a user from the database by their ID. It returns a boolean in
 
 2. Mutations
 DeleteUser resolves the deleteUser mutation, allowing an authenticated user to delete their account.
+
+## get user
+>internal/graph/resolvers/query.go
+- Me is the resolver for the me field.
+
+## Create habit
+1. habit_repository
+- CreateHabit creates a new habit for a user in the database with the provided name and description.
+
+2. internal/grapsh/resolvers/mutation.go
+CreateHabit is the resolver for the createHabit field. 
+**main.go**
+3. Initialize repositories
+	habitRepo := repository.NewHabitRepository(db)
+    4. Wire habit repository to the app
+    		Resolvers: &resolvers.Resolver{
+			HabitRepo:    habitRepo,
+		},

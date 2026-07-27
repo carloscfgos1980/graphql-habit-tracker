@@ -8,6 +8,7 @@ import (
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
 )
 
+// Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*models.User, error) {
 	userID, ok := middleware.GetUserID(ctx)
 
