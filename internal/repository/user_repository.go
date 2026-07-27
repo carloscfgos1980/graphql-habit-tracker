@@ -65,6 +65,7 @@ func (r *UserRepository) CreateUser(username string, email string, hashedPasswor
 	return &user, nil
 }
 
+// GetUserByEmail retrieves a user from the database by their email address. It returns the user and an error if any.
 func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	err := r.DB.QueryRow("SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE email = ?", email).Scan(
@@ -88,6 +89,7 @@ func (r *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 
 }
 
+// GetUserByID retrieves a user from the database by their ID. It returns the user and an error if any.
 func (r *UserRepository) GetUserByID(id string) (*models.User, error) {
 	var user models.User
 	err := r.DB.QueryRow("SELECT id, username, email, password_hash, created_at, updated_at FROM users WHERE id = ?", id).Scan(
@@ -110,6 +112,7 @@ func (r *UserRepository) GetUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
+// UpdateUser updates the user's information in the database. It returns the updated user and an error if any.
 func (r *UserRepository) UpdateUser(id string, username *string, email *string, password *string) (*models.User, error) {
 	// SQL Fragment
 	var setClauses []string
@@ -165,6 +168,7 @@ func (r *UserRepository) UpdateUser(id string, username *string, email *string, 
 	return r.GetUserByID(id)
 }
 
+// DeleteUser deletes a user from the database by their ID. It returns a boolean indicating whether the user was deleted and an error if any.
 func (r *UserRepository) DeleteUser(id string) (bool, error) {
 	result, err := r.DB.Exec("DELETE FROM users WHERE id = ?", id)
 	if err != nil {

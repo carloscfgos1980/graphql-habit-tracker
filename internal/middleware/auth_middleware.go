@@ -16,6 +16,7 @@ type contextKey string
 // contextKey("userID") != string("userID")
 const userIDKey contextKey = "userID"
 
+// AuthMiddleware is a Gin middleware that checks for a valid JWT token in the Authorization header.
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Authorization: "Bearer ..."
@@ -48,6 +49,7 @@ func AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
+// GetUserID retrieves the user ID from the context. It returns the user ID and a boolean indicating whether the user ID was found.
 func GetUserID(ctx context.Context) (string, bool) {
 	// interface{} == any{}
 	userID, ok := ctx.Value(userIDKey).(string)

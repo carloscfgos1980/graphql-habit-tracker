@@ -50,6 +50,7 @@ func (r *mutationResolver) Register(ctx context.Context, name string, email stri
 
 }
 
+// Login resolves the login mutation, authenticating a user and returning an authentication payload.
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*models.AuthPayload, error) {
 	// Step 1: Fetch user by email
 	user, err := r.UserRepo.GetUserByEmail(email)

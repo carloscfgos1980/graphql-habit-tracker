@@ -30,6 +30,8 @@ goose -dir ./migrations sqlite3 ./data/habit.db up
 
 ## schema.graphqls
 * this is pretty important. Here is define the type of answers to the resquests, the mutations and the queries
+- run de script to generate schema.resolver.go file:
+go run github.com/99designs/gqlgen generate
 
 
 ## main
@@ -43,6 +45,11 @@ goose -dir ./migrations sqlite3 ./data/habit.db up
 - Apply authentication middleware to the /graphql endpoint
 - get the port from environment variable
 - Start the server and log any errors
+
+## middleware
+>internal/middleware/auth_middleware
+- AuthMiddleware is a Gin middleware that checks for a valid JWT token in the Authorization header.
+- GetUserID retrieves the user ID from the context. It returns the user ID and a boolean indicating whether the user ID was found.
 
 ## register
 
@@ -66,3 +73,9 @@ CreateUser creates a new user in the database with the provided username, email,
 			UserRepo:     userRepo,
 		},
 	}))
+
+## login
+1. user_repository
+GetUserByEmail retrieves a user from the database by their email address. It returns the user and an error if any.
+2. Mutations
+Login resolves the login mutation, authenticating a user and returning an authentication payload.
