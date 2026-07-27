@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/models"
+	"github.com/carloscfgos1980/graphql-habit-tracker/internal/utils"
 )
 
 // CreatedAt is the resolver for the createdAt field.
@@ -59,4 +60,34 @@ func (r *habitResolver) TotalCompletions(ctx context.Context, obj *models.Habit)
 	}
 
 	return int32(count), nil
+}
+
+// CurrentStreak is the resolver for the currentStreak field.
+func (r *habitResolver) CurrentStreak(ctx context.Context, obj *models.Habit) (int32, error) {
+	if obj == nil {
+		return 0, fmt.Errorf("habit is required")
+	}
+
+	logs, err := r.HabitLogRepo.GetHabitLogsByHabitID(obj.ID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to resolve current streak: %w", err)
+	}
+
+	streak := utils.CalculateCurrentStreak(logs)
+	return int32(streak), nil
+}
+
+// LongestStreak is the resolver for the longestStreak field.
+func (r *habitResolver) LongestStreak(ctx context.Context, obj *models.Habit) (int32, error) {
+	if obj == nil {
+		return 0, fmt.Errorf("habit is required")
+	}
+
+	logs, err := r.HabitLogRepo.GetHabitLogsByHabitID(obj.ID)
+	if err != nil {
+		return 0, fmt.Errorf("failed to resolve longest streak: %w", err)
+	}
+
+	streak := utils.CalculateLongestStreak(logs)
+	return int32(streak), nil
 }
