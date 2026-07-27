@@ -18,6 +18,7 @@ func NewHabitLogRepository(db *sql.DB) *HabitLogRepository {
 	return &HabitLogRepository{DB: db}
 }
 
+// CheckDuplicateLog checks if a habit log already exists for the given habit ID and completed date. It returns true if a duplicate log exists, false otherwise, along with any error encountered during the check.
 func (r *HabitLogRepository) CheckDuplicateLog(habitID string, completedDate time.Time) (bool, error) {
 	// SQLITE's Date Column => 2026-06-06T10:30:00Z
 	// stored date          => 2026-06-06
@@ -33,6 +34,7 @@ func (r *HabitLogRepository) CheckDuplicateLog(habitID string, completedDate tim
 	return count > 0, nil
 }
 
+// CreateHabitLog creates a new habit log in the database for the specified habit ID and completed date. It returns the created HabitLog model and an error if any.
 func (r *HabitLogRepository) CreateHabitLog(habitID string, completedDate time.Time) (*models.HabitLog, error) {
 	now := time.Now()
 
@@ -69,6 +71,7 @@ func (r *HabitLogRepository) CreateHabitLog(habitID string, completedDate time.T
 	return &log, nil
 }
 
+// GetHabitLogsByHabitID retrieves all habit logs associated with a specific habit ID from the database. It returns a slice of HabitLog models and an error if any.
 func (r *HabitLogRepository) GetHabitLogsByHabitID(habitID string) ([]*models.HabitLog, error) {
 	rows, err := r.DB.Query("SELECT id, habit_id, completed_date, created_at FROM habit_logs WHERE habit_id = ? ORDER BY completed_date DESC", habitID)
 	if err != nil {
@@ -103,6 +106,7 @@ func (r *HabitLogRepository) GetHabitLogsByHabitID(habitID string) ([]*models.Ha
 	return logs, nil
 }
 
+// GetHabitLogByID retrieves a habit log from the database by its ID. It returns the HabitLog model and an error if any.
 func (r *HabitLogRepository) GetHabitLogByID(id string) (*models.HabitLog, error) {
 
 	var log models.HabitLog
@@ -123,6 +127,7 @@ func (r *HabitLogRepository) GetHabitLogByID(id string) (*models.HabitLog, error
 	return &log, nil
 }
 
+// DeleteHabitLog deletes a habit log from the database by its ID. It returns a boolean indicating whether the habit log was deleted and an error if any.
 func (r *HabitLogRepository) DeleteHabitLog(id string) (bool, error) {
 	result, err := r.DB.Exec("DELETE FROM habit_logs WHERE id = ?", id)
 	if err != nil {

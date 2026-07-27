@@ -14,7 +14,7 @@ go run github.com/99designs/gqlgen generate
 
 go install github.com/air-verse/air@latest
 export PATH="$PATH:$(go env GOPATH)/bin"
-# Needed because `go install` puts `air` in GOPATH/bin, which is not always on zsh's PATH.
+-> Needed because `go install` puts `air` in GOPATH/bin, which is not always on zsh's PATH.
 
 
 goose -dir ./migrations sqlite3 ./data/habit.db up
@@ -160,3 +160,41 @@ UpdateHabit updates the specified fields of a habit. It returns the updated habi
 DeleteHabit deletes a habit from the database if it belongs to the specified user. It returns a boolean indicating whether the habit was deleted and an error if any.
 2. mutation.go
 DeleteHabit is the resolver for the deleteHabit field.
+
+## get logs
+1. habit_logs_repository
+- GetHabitLogsByHabitID retrieves all habit logs associated with a specific habit ID from the database. It returns a slice of HabitLog models and an error if any.
+
+2. Query
+- Habits is the resolver for the habits field.
+
+3. Field resolvers:
+- CompletedDate is the resolver for the completedDate field.
+- CreatedAt is the resolver for the createdAt field.
+- Habit is the resolver for the habit field.
+
+**main**
+4. Initialize repositories
+	habitLogRepo := repository.NewHabitLogRepository(db)
+
+5. 	// Initialize GraphQL server
+	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{
+		Resolvers: &resolvers.Resolver{
+			UserRepo:     userRepo,
+			HabitRepo:    habitRepo,
+			HabitLogRepo: habitLogRepo,
+		},
+	}))
+
+## Get a Habit Log
+1. repository
+- GetHabitLogByID retrieves a habit log from the database by its ID. It returns the HabitLog model and an error if any.
+2. query
+- Habit is the resolver for the habit field.
+
+## Create habit log
+1. habit_logs repository
+- CheckDuplicateLog checks if a habit log already exists for the given habit ID and completed date. It returns true if a duplicate log exists, false otherwise, along with any error encountered during the check.
+- CreateHabitLog creates a new habit log in the database for the specified habit ID and completed date. It returns the created HabitLog model and an error if any.
+2. mutation
+- CheckInHabit is the resolver for the checkInHabit field.
