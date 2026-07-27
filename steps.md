@@ -90,3 +90,10 @@ Login resolves the login mutation, authenticating a user and returning an authen
 2.2 etch the user from the database to ensure they exist
 2.3 Validate and prepare the new values for update
 2.3 Update the user in the database
+
+## delete user
+1. user_repository
+DeleteUser deletes a user from the database by their ID. It returns a boolean indicating whether the user was deleted and an error if any.
+
+2. Mutations
+DeleteUser resolves the deleteUser mutation, allowing an authenticated user to delete their account.

@@ -129,6 +129,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *
 	return updatedUser, nil
 }
 
+// DeleteUser resolves the deleteUser mutation, allowing an authenticated user to delete their account.
 func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 	userID, ok := middleware.GetUserID(ctx)
 
