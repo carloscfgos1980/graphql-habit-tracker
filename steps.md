@@ -115,3 +115,15 @@ CreateHabit is the resolver for the createHabit field.
     		Resolvers: &resolvers.Resolver{
 			HabitRepo:    habitRepo,
 		},
+
+## Get habits
+1. habit_repository
+- GetHabitsByUserID retrieves all habits associated with a specific user ID from the database.
+2. internal/grapsh/resolvers/query.go
+Habits is the resolver for the habits field.
+
+## Get habit by ID
+1. habit_repository
+- GetHabitByID retrieves a habit from the database by its ID. It returns the habit if found, or nil if not found.
+2. internal/grapsh/resolvers/query.go
+Habit is the resolver for the habit field.

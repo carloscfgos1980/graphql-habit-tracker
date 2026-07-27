@@ -49,6 +49,7 @@ func (r *HabitRepository) CreateHabit(userID string, name string, description st
 	return &habit, nil
 }
 
+// GetHabitsByUserID retrieves all habits associated with a specific user ID from the database.
 func (r *HabitRepository) GetHabitsByUserID(userID string) ([]*models.Habit, error) {
 	// *sql.Rows => cursor
 	rows, err := r.DB.Query("SELECT id, user_id, name, description, created_at, updated_at FROM habits WHERE user_id = ? ORDER BY created_at DESC", userID)
@@ -174,6 +175,7 @@ func (r *HabitRepository) DeleteHabit(habitID string, userID string) (bool, erro
 	return true, nil
 }
 
+// GetHabitByID retrieves a habit from the database by its ID. It returns the habit if found, or nil if not found.
 func (r *HabitRepository) GetHabitByID(id string) (*models.Habit, error) {
 	var habit models.Habit
 
