@@ -79,3 +79,14 @@ CreateUser creates a new user in the database with the provided username, email,
 GetUserByEmail retrieves a user from the database by their email address. It returns the user and an error if any.
 2. Mutations
 Login resolves the login mutation, authenticating a user and returning an authentication payload.
+
+## update user
+1. user_repository
+- GetUserByID retrieves a user from the database by their ID. It returns the user and an error if any.
+- UpdateUser updates the user's information in the database. It returns the updated user and an error if any.
+
+2. UpdateUser resolves the updateUser mutation, allowing an authenticated user to update their profile information.
+2.1 Step 1: Retrieve the user ID from the context (set by the authentication middleware)
+2.2 etch the user from the database to ensure they exist
+2.3 Validate and prepare the new values for update
+2.3 Update the user in the database

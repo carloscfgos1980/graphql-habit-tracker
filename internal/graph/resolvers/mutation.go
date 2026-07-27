@@ -77,7 +77,9 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 
 }
 
+// UpdateUser resolves the updateUser mutation, allowing an authenticated user to update their profile information.
 func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *string, password *string) (*models.User, error) {
+	// Step 1: Retrieve the user ID from the context (set by the authentication middleware)
 	userID, ok := middleware.GetUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("unauthorized")
@@ -87,6 +89,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
+	// Step 2: Validate and prepare the new values for update
 	newName := &dbUser.Username
 	newEmail := &dbUser.Email
 	newPassword := &dbUser.Password
@@ -117,7 +120,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, name *string, email *
 
 		newPassword = &hash
 	}
-
+	// Step 3: Update the user in the database
 	updatedUser, err := r.UserRepo.UpdateUser(userID, newName, newEmail, newPassword)
 	if err != nil {
 		return nil, err
