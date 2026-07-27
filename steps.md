@@ -64,7 +64,10 @@ CreateUser creates a new user in the database with the provided username, email,
 
 3. Register resolves the register mutation, creating a new user and returning an authentication payload.
 
-4. 	Initialize user repository
+4. 	user field resolver
+- CreatedAt is the resolver for the createdAt field.
+- UpdatedAt is the resolver for the updatedAt field.
+Initialize user repository
 	userRepo := repository.NewUserRepository(db)
 
 5. Add the repository to graphql server
@@ -99,8 +102,11 @@ DeleteUser deletes a user from the database by their ID. It returns a boolean in
 DeleteUser resolves the deleteUser mutation, allowing an authenticated user to delete their account.
 
 ## get user
+1. 
 >internal/graph/resolvers/query.go
 - Me is the resolver for the me field.
+2. user resolver
+- Habits is the resolver for the habits field when fectching users
 
 ## Create habit
 1. habit_repository
@@ -121,9 +127,36 @@ CreateHabit is the resolver for the createHabit field.
 - GetHabitsByUserID retrieves all habits associated with a specific user ID from the database.
 2. internal/grapsh/resolvers/query.go
 Habits is the resolver for the habits field.
+3. habit resolver
+- CreatedAt is the resolver for the createdAt field.
+- UpdatedAt is the resolver for the updatedAt field.
+- User is the resolver for the user field.
 
 ## Get habit by ID
 1. habit_repository
 - GetHabitByID retrieves a habit from the database by its ID. It returns the habit if found, or nil if not found.
 2. internal/grapsh/resolvers/query.go
 Habit is the resolver for the habit field.
+
+## Update habit. Dynamic inject of data while updating
+1. habit_repository
+UpdateHabit updates the specified fields of a habit. It returns the updated habit.
+1.1 Check if the habit exists and belongs to the user
+1.2 SQL Fragment
+1.3 args is a slice to hold the values for the SQL query
+1.4 Validate and prepare the fields to update
+1.5 If no fields are provided to update, return an error
+1.6 Add the updated_at timestamp
+1.7 setClause is a string that joins the setClauses with commas, forming the SET part of the SQL query
+1.8 query is the final SQL query string that will be executed to update the habit
+1.9 Execute the update query
+1.10 Return the updated habit
+
+2. mutation.go
+- UpdateHabit is the resolver for the updateHabit field.
+
+## Delete habit
+1. habit-repository.go
+DeleteHabit deletes a habit from the database if it belongs to the specified user. It returns a boolean indicating whether the habit was deleted and an error if any.
+2. mutation.go
+DeleteHabit is the resolver for the deleteHabit field.

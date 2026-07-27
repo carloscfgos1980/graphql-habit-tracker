@@ -110,48 +110,51 @@ func (r *HabitRepository) GetHabitWithUserCheck(habitID string, userID string) (
 	return &habit, nil
 }
 
+// UpdateHabit updates the specified fields of a habit. It returns the updated habit.
 func (r *HabitRepository) UpdateHabit(habitID string, userID string, name *string, description *string) (*models.Habit, error) {
+	// Check if the habit exists and belongs to the user
 	_, err := r.GetHabitWithUserCheck(habitID, userID)
 	if err != nil {
 		return nil, err
 	}
-
 	// SQL Fragment
 	var setClauses []string
-	// Data
+	// args is a slice to hold the values for the SQL query
 	var args []interface{}
-
+	// Validate and prepare the fields to update
 	if name != nil {
 		setClauses = append(setClauses, "name = ?")
 		args = append(args, *name)
 	}
-
+	// Validate and prepare the fields to update
 	if description != nil {
 		setClauses = append(setClauses, "description = ?")
 		args = append(args, *description)
 	}
-
+	// If no fields are provided to update, return an error
 	if len(setClauses) == 0 {
 		return nil, fmt.Errorf("no fields provided to update")
 	}
-
+	// Add the updated_at timestamp
 	now := time.Now()
 	setClauses = append(setClauses, "updated_at = ?")
 	args = append(args, now)
 
+	// setClause is a string that joins the setClauses with commas, forming the SET part of the SQL query
 	setClause := strings.Join(setClauses, ", ")
-
+	// query is the final SQL query string that will be executed to update the habit
 	query := fmt.Sprintf("UPDATE habits SET %s WHERE id = ?", setClause)
 	args = append(args, habitID)
-
+	// Execute the update query
 	_, err = r.DB.Exec(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update habit: %w", err)
 	}
-
+	// Return the updated habit
 	return r.GetHabitWithUserCheck(habitID, userID)
 }
 
+// DeleteHabit deletes a habit from the database if it belongs to the specified user. It returns a boolean indicating whether the habit was deleted and an error if any.
 func (r *HabitRepository) DeleteHabit(habitID string, userID string) (bool, error) {
 	_, err := r.GetHabitWithUserCheck(habitID, userID)
 	if err != nil {
