@@ -11,6 +11,7 @@ import (
 	"github.com/carloscfgos1980/graphql-habit-tracker/internal/utils"
 )
 
+// Register resolves the register mutation, creating a new user and returning an authentication payload.
 func (r *mutationResolver) Register(ctx context.Context, name string, email string, password string) (*models.AuthPayload, error) {
 	err := utils.ValidateName(name)
 	if err != nil {

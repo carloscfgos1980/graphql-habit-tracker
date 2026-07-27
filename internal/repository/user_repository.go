@@ -19,6 +19,7 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
 
+// CreateUser creates a new user in the database with the provided username, email, and hashed password.
 func (r *UserRepository) CreateUser(username string, email string, hashedPassword string) (*models.User, error) {
 	now := time.Now()
 
